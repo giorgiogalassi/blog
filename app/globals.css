@@ -62,12 +62,36 @@ a:hover {
   text-decoration: none;
 }
 
+.main-nav {
+  display: block;
+}
+
 .nav-list {
   display: flex;
   gap: 1rem;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+.menu-toggle {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu-toggle-bar {
+  width: 1rem;
+  height: 2px;
+  background: var(--color-fg);
+  border-radius: 99px;
 }
 
 .page {
@@ -195,8 +219,8 @@ a:hover {
 }
 
 .social-icons a {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2.8rem;
+  height: 2.8rem;
   border-radius: 0;
   display: inline-flex;
   align-items: center;
@@ -219,8 +243,8 @@ a:hover {
 }
 
 .social-icon-image {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.8rem;
+  height: 1.8rem;
   object-fit: contain;
 }
 
@@ -268,6 +292,34 @@ a:hover {
 .contact-form textarea:focus {
   outline: 2px solid var(--color-accent-soft);
   border-color: var(--color-accent);
+}
+
+@media (max-width: 1024px) {
+  .nav-shell {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .main-nav {
+    width: 100%;
+    display: none;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+  }
+
+  .main-nav.is-open {
+    display: block;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
 }
 
 @media (max-width: 768px) {
