@@ -1,19 +1,52 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 
 import { siteConfig } from '@/config/site';
 
 export function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen((current) => !current);
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
   return (
     <header className="site-header">
       <div className="container nav-shell">
-        <Link href="/" className="brand">
+        <Link href="/" className="brand" onClick={closeMenu}>
           {siteConfig.name}
         </Link>
-        <nav aria-label="Main navigation">
+
+        <button
+          type="button"
+          className="menu-toggle button-reset"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isMenuOpen}
+          aria-controls="main-navigation"
+          onClick={toggleMenu}
+        >
+          <span className="menu-toggle-bar" />
+          <span className="menu-toggle-bar" />
+          <span className="menu-toggle-bar" />
+        </button>
+
+        <nav
+          id="main-navigation"
+          aria-label="Main navigation"
+          className={isMenuOpen ? 'main-nav is-open' : 'main-nav'}
+        >
           <ul className="nav-list">
             {siteConfig.nav.map((item) => (
               <li key={item.href}>
-                <Link href={item.href}>{item.label}</Link>
+                <Link href={item.href} onClick={closeMenu}>
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>

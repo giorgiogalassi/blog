@@ -43,6 +43,9 @@ a:hover {
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg);
 }
@@ -59,12 +62,36 @@ a:hover {
   text-decoration: none;
 }
 
+.main-nav {
+  display: block;
+}
+
 .nav-list {
   display: flex;
   gap: 1rem;
   list-style: none;
   padding: 0;
   margin: 0;
+}
+
+.menu-toggle {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu-toggle-bar {
+  width: 1rem;
+  height: 2px;
+  background: var(--color-fg);
+  border-radius: 99px;
 }
 
 .page {
@@ -192,24 +219,20 @@ a:hover {
 }
 
 .social-icons a {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
   text-decoration: none;
-  color: #fff;
-  background: #3f3f3f;
-  border: 1px solid #555;
+  background: transparent;
+  border: none;
 }
 
 .social-icons a:hover,
 .social-icons a:focus-visible {
-  background: var(--color-accent);
-  border-color: var(--color-accent-strong);
-  color: #fff;
+  opacity: 0.85;
 }
 
 .profile-photo {
@@ -220,8 +243,8 @@ a:hover {
 }
 
 .social-icon-image {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.8rem;
+  height: 1.8rem;
   object-fit: contain;
 }
 
@@ -269,6 +292,41 @@ a:hover {
 .contact-form textarea:focus {
   outline: 2px solid var(--color-accent-soft);
   border-color: var(--color-accent);
+}
+
+@media (max-width: 1024px) {
+  .nav-shell {
+    position: relative;
+    gap: 0.75rem;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .main-nav {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    display: none;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    box-shadow: 0 6px 24px rgb(0 0 0 / 10%);
+    padding: 0.75rem;
+  }
+
+  .main-nav.is-open {
+    display: block;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
 }
 
 @media (max-width: 768px) {
