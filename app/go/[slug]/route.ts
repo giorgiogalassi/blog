@@ -2,8 +2,10 @@ import { NextResponse } from 'next/server';
 
 import { articleRedirectMap } from '@/data/articles';
 
-export function GET(_request: Request, { params }: { params: { slug: string } }) {
-  const target = articleRedirectMap[params.slug];
+export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
+  const target = articleRedirectMap[slug];
 
   if (!target) {
     return NextResponse.json({ error: 'Slug non trovato' }, { status: 404 });
