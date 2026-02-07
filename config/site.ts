@@ -1,10 +1,10 @@
 export const siteConfig = {
-  name: 'Mario Rossi',
-  title: 'Mario Rossi | Personal Blog',
+  name: 'Giorgio Galassi',
+  title: 'Giorgio Galassi | Personal Blog',
   description:
     'A personal blog about software engineering, product thinking, and web development. Full articles are published on external platforms.',
   url: 'https://example.com',
-  email: 'mario.rossi@example.com',
+  email: 'ged.galassi@gmail.com',
   nav: [
     { label: 'Home', href: '/' },
     { label: 'About', href: '/about' },
@@ -12,9 +12,9 @@ export const siteConfig = {
     { label: 'Contact', href: '/contact' }
   ],
   social: {
-    medium: 'https://medium.com/@mario-rossi',
-    github: 'https://github.com/mario-rossi',
-    linkedin: 'https://www.linkedin.com/in/mario-rossi'
+    medium: 'https://medium.com/@giorgio.galassi',
+    github: 'https://github.com/giorgiogalassi',
+    linkedin: 'https://www.linkedin.com/in/giorgiogalassi/'
   }
 } as const;
 

@@ -1,41 +1,58 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
-import { externalArticles } from '@/data/articles';
+import { getMediumArticles } from '@/lib/medium';
 
 export const metadata: Metadata = {
   title: 'Articles',
-  description: 'A list of external articles published on Medium and other platforms.'
+  description: 'A dynamic list of articles published on Medium.'
 };
 
-export default function ArticlesPage() {
+export default async function ArticlesPage() {
+  const articles = await getMediumArticles();
+
   return (
     <section className="page container">
       <h1>External articles</h1>
       <p className="lead">
-        Every article uses a stable internal route (<code>/go/[slug]</code>) that redirects to the
-        external platform.
+        This list is generated automatically from Medium via RSS2JSON: no manual sync required.
       </p>
 
       <div className="card-list">
-        {externalArticles.map((article) => (
-          <article key={article.slug} className="card">
+        {articles.map((article) => (
+          <article key={article.id} className="card">
+            {article.imageUrl ? (
+              // Usando un normale <img> evitiamo vincoli su domini esterni in configurazione Next.
+              <img src={article.imageUrl} alt={article.title} className="card-image" loading="lazy" />
+            ) : null}
+
             <h2>{article.title}</h2>
-            <p>{article.summary}</p>
+
             <p className="card-meta">
-              {article.platform} · {new Date(article.publishedAt).toLocaleDateString('en-US')}
+              Medium · {new Date(article.publishedAt).toLocaleDateString('en-US')}
             </p>
-            <Link href={`/go/${article.slug}`} className="button-link">
+
+            {article.categories.length > 0 ? (
+              <ul className="category-list" aria-label="Article categories">
+                {article.categories.map((category) => (
+                  <li key={`${article.id}-${category}`} className="category-pill">
+                    {category}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            <a href={article.url} className="button-link" target="_blank" rel="noreferrer">
               Read article
-            </Link>
+            </a>
           </article>
         ))}
       </div>
 
-      <p className="note">
-        To add a new article, update only <code>data/articles.ts</code>: both the list and redirect
-        map update automatically.
-      </p>
+      {articles.length === 0 ? (
+        <p className="note">
+          No articles are currently available from the RSS source. Check feed/API availability.
+        </p>
+      ) : null}
     </section>
   );
 }
