@@ -74,28 +74,38 @@ function mapToSpeakerSession(
 }
 
 export async function getSpeakerSessions(): Promise<SpeakerSession[]> {
-  const response = await fetch(SESSIONIZE_SPEAKER_URL, {
-    next: { revalidate: 1800 }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Unable to load Sessionize speaker profile: HTTP ${response.status}`);
-  }
-
-  const payload = (await response.json()) as SessionizeSpeakerResponse | SessionizeSpeakerEventResponse[];
-
-  if (Array.isArray(payload)) {
-    return payload.flatMap((entry) => {
-      const eventName = entry.event?.name;
-      const eventUrl = entry.event?.website;
-
-      return (entry.sessions ?? []).map((session) => mapToSpeakerSession(session, { eventName, eventUrl }));
+  try {
+    const response = await fetch(SESSIONIZE_SPEAKER_URL, {
+      next: { revalidate: 1800 }
     });
-  }
 
-  if (!payload.sessions) {
+    // In build/prerender environments the endpoint can be blocked (e.g. 403).
+    // Returning an empty list keeps the page renderable and avoids hard failures.
+    if (!response.ok) {
+      return [];
+    }
+
+    const payload = (await response.json()) as
+      | SessionizeSpeakerResponse
+      | SessionizeSpeakerEventResponse[];
+
+    if (Array.isArray(payload)) {
+      return payload.flatMap((entry) => {
+        const eventName = entry.event?.name;
+        const eventUrl = entry.event?.website;
+
+        return (entry.sessions ?? []).map((session) =>
+          mapToSpeakerSession(session, { eventName, eventUrl })
+        );
+      });
+    }
+
+    if (!payload.sessions) {
+      return [];
+    }
+
+    return payload.sessions.map((session) => mapToSpeakerSession(session));
+  } catch {
     return [];
   }
-
-  return payload.sessions.map((session) => mapToSpeakerSession(session));
 }
