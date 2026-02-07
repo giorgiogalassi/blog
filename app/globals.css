@@ -445,10 +445,11 @@ a:hover {
 }
 
 
-.field-label-strong {
-  font-weight: 700;
-  color: var(--color-fg);
-  letter-spacing: 0.01em;
+
+.field-divider {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: 0.4rem 0 0.2rem;
 }
 
 .field-caption {

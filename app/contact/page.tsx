@@ -6,18 +6,17 @@ import { siteConfig } from '@/config/site';
 import { ContactForm } from './contact-form';
 
 export const metadata: Metadata = {
-  title: 'Contatti',
-  description: 'Raccontami il tuo progetto: ti rispondo con prossimi step concreti e una stima realistica.'
+  title: 'Contact',
+  description: 'Tell me about your project: I'll reply with concrete next steps and a realistic estimate.'
 };
 
 export default function ContactPage() {
   return (
     <section className="page container contact-page">
       <header className="contact-hero">
-        <h1>Parliamo del tuo progetto</h1>
+        <h1>Let's talk about your project</h1>
         <p className="lead">
-          Rispondo entro 2 giorni lavorativi. Se hai urgenza, prenota direttamente una call a
-          pagamento.
+          I reply within 2 business days. If your request is urgent, book a paid call directly.
         </p>
         <div className="contact-hero-actions">
           <Link
@@ -26,10 +25,10 @@ export default function ContactPage() {
             target="_blank"
             rel="noreferrer"
           >
-            Prenota una call
+            Book a call
           </Link>
           <a className="button-link button-link-secondary" href={`mailto:${siteConfig.email}`}>
-            Scrivimi via email
+            Email me
           </a>
           <Link
             href={siteConfig.social.linkedin}
@@ -44,22 +43,22 @@ export default function ContactPage() {
 
       <div className="contact-grid">
         <ContactForm />
-        <aside className="contact-sidebar" aria-label="Informazioni utili">
+        <aside className="contact-sidebar" aria-label="Useful information">
           <div className="card">
-            <h2>Cosa succede dopo</h2>
+            <h2>What happens next</h2>
             <ol>
-              <li>Leggo la richiesta e verifico se è in scope.</li>
-              <li>Se allineati, ti propongo call o domande di chiarimento.</li>
-              <li>Dopo la call condivido proposta, stima e timeline.</li>
+              <li>I review your request and check whether it is in scope.</li>
+              <li>If we are aligned, I propose a call or follow-up questions.</li>
+              <li>After the call I share a proposal, estimate, and timeline.</li>
             </ol>
           </div>
 
           <div className="card">
-            <h2>Non fa per me se...</h2>
+            <h2>Not a fit if...</h2>
             <ul>
-              <li>Cerchi solo il prezzo più basso senza obiettivi chiari.</li>
-              <li>Hai bisogno di disponibilità full-time immediata.</li>
-              <li>Non c&apos;è budget o ownership minima sul progetto.</li>
+              <li>You only want the lowest price without clear goals.</li>
+              <li>You need immediate full-time availability.</li>
+              <li>There is no budget or project ownership.</li>
             </ul>
           </div>
         </aside>

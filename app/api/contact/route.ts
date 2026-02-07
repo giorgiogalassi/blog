@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { message: 'Hai inviato troppe richieste in poco tempo. Riprova tra qualche minuto.' },
+      { message: 'You sent too many requests in a short time. Please try again in a few minutes.' },
       { status: 429 }
     );
   }
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   const body = (await request.json()) as ContactPayload;
 
   if (body.websiteField) {
-    return NextResponse.json({ message: 'Richiesta ricevuta.' }, { status: 200 });
+    return NextResponse.json({ message: 'Request received.' }, { status: 200 });
   }
 
   const validation = validatePayload(body);
@@ -77,53 +77,53 @@ export async function POST(request: NextRequest) {
     }),
     sendEmail({
       to: body.email ?? '',
-      subject: 'Richiesta ricevuta ✅',
-      text: `Ciao ${body.name},\n\nho ricevuto la tua richiesta e ti rispondo entro 2 giorni lavorativi con prossimi step concreti.\n\nA presto,\nGiorgio`
+      subject: 'Request received ✅',
+      text: `Hi ${body.name},\n\nI received your request and I'll reply within 2 business days with concrete next steps.\n\nTalk soon,\nGiorgio`
     })
   ]);
 
-  return NextResponse.json({ message: 'Richiesta ricevuta! Ti rispondo entro 2 giorni lavorativi.' }, { status: 200 });
+  return NextResponse.json({ message: 'Request received! I'll reply within 2 business days.' }, { status: 200 });
 }
 
 function validatePayload(body: ContactPayload): { ok: true } | { ok: false; message: string } {
   if (!body.requestType) {
-    return { ok: false, message: 'Seleziona il tipo di richiesta.' };
+    return { ok: false, message: 'Select a request type.' };
   }
 
   if (!body.name?.trim() || !body.email?.trim()) {
-    return { ok: false, message: 'Nome ed email sono obbligatori.' };
+    return { ok: false, message: 'Name and email are required.' };
   }
 
   if (!/^\S+@\S+\.\S+$/.test(body.email)) {
-    return { ok: false, message: 'Inserisci una email valida.' };
+    return { ok: false, message: 'Enter a valid email address.' };
   }
 
   if (!body.privacyAccepted) {
-    return { ok: false, message: 'Per continuare devi accettare la privacy policy.' };
+    return { ok: false, message: 'You must accept the privacy policy to continue.' };
   }
 
   if (summaryRequiredTypes.has(body.requestType) && !body.projectSummary?.trim()) {
-    return { ok: false, message: 'Aggiungi un riassunto del progetto.' };
+    return { ok: false, message: 'Add a project summary.' };
   }
 
   if (body.requestType === 'PerformanceAudit' && !body.projectLink?.trim()) {
-    return { ok: false, message: 'Per l’audit performance è necessario il link del progetto.' };
+    return { ok: false, message: 'A project link is required for a performance audit.' };
   }
 
   if (body.requestType === 'Consulting' && !body.topic?.trim()) {
-    return { ok: false, message: 'Indica il topic della consulenza.' };
+    return { ok: false, message: 'Specify the consulting topic.' };
   }
 
   if (body.requestType === 'Mentoring' && !body.goals?.trim()) {
-    return { ok: false, message: 'Descrivi gli obiettivi del mentoring.' };
+    return { ok: false, message: 'Describe your mentoring goals.' };
   }
 
   if (body.requestType === 'TalkEvent' && (!body.eventName?.trim() || !body.eventDate?.trim() || !body.topic?.trim())) {
-    return { ok: false, message: 'Compila nome evento, data e topic.' };
+    return { ok: false, message: 'Fill in event name, date, and topic.' };
   }
 
   if (body.requestType === 'Other' && !body.message?.trim()) {
-    return { ok: false, message: 'Inserisci un messaggio descrittivo.' };
+    return { ok: false, message: 'Enter a descriptive message.' };
   }
 
   return { ok: true };
@@ -131,30 +131,30 @@ function validatePayload(body: ContactPayload): { ok: true } | { ok: false; mess
 
 function formatOwnerMessage(body: ContactPayload, context: { timezone: string; timestamp: string }) {
   const lines = [
-    `Tipo richiesta: ${body.requestType ?? '-'}`,
-    `Nome/Email/Azienda: ${body.name ?? '-'} / ${body.email ?? '-'} / ${body.company ?? '-'}`,
-    `Ruolo: ${body.role ?? '-'}`,
+    `Request type: ${body.requestType ?? '-'}`,
+    `Name/Email/Company: ${body.name ?? '-'} / ${body.email ?? '-'} / ${body.company ?? '-'}`,
+    `Role: ${body.role ?? '-'}`,
     `Website: ${body.website ?? '-'}`,
-    `Link progetto: ${body.projectLink ?? '-'}`,
+    `Project link: ${body.projectLink ?? '-'}`,
     `Budget range: ${body.budgetRange ?? '-'}`,
     `Deadline / Start: ${body.deadline ?? '-'} / ${body.startPreference ?? '-'}`,
     `Engagement: ${body.engagementType ?? '-'}`,
-    `Riassunto progetto: ${body.projectSummary ?? '-'}`,
+    `Project summary: ${body.projectSummary ?? '-'}`,
     `Topic: ${body.topic ?? '-'}`,
     `Stack: ${body.stack ?? '-'}`,
     `Pain points: ${body.painPoints?.join(', ') || '-'}`,
-    `Accesso analytics: ${body.accessToAnalytics ?? '-'}`,
+    `Analytics access: ${body.accessToAnalytics ?? '-'}`,
     `Current state: ${body.currentState ?? '-'}`,
     `Design source: ${body.designSource ?? '-'}`,
     `Tech: ${body.tech ?? '-'}`,
     `Components count: ${body.componentsCount ?? '-'}`,
-    `Livello mentoring: ${body.level ?? '-'}`,
+    `Mentoring level: ${body.level ?? '-'}`,
     `Goals mentoring: ${body.goals ?? '-'}`,
-    `Frequenza mentoring: ${body.frequency ?? '-'}`,
-    `Evento: ${body.eventName ?? '-'} / ${body.eventDate ?? '-'} / ${body.location ?? '-'}`,
+    `Mentoring frequency: ${body.frequency ?? '-'}`,
+    `Event: ${body.eventName ?? '-'} / ${body.eventDate ?? '-'} / ${body.location ?? '-'}`,
     `Audience: ${body.audienceSize ?? '-'} | Fee budget: ${body.feeBudget ?? '-'}`,
-    `Messaggio libero: ${body.message ?? '-'}`,
-    `Link materiali: ${body.materialsLink ?? '-'}`,
+    `Free message: ${body.message ?? '-'}`,
+    `Materials link: ${body.materialsLink ?? '-'}`,
     `Timestamp: ${context.timestamp} (${context.timezone})`
   ];
 
