@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'About',
-  description: 'Chi sono, come lavoro e cosa condivido in questo blog personale.'
+  description: 'Who I am, how I work, and what I publish on this personal blog.'
 };
 
 export default function AboutPage() {
@@ -10,11 +10,12 @@ export default function AboutPage() {
     <section className="page container">
       <h1>About</h1>
       <p className="lead">
-        Sono un software engineer focalizzato su prodotti web mantenibili, DX e performance di base.
+        I am a software engineer focused on maintainable web products, developer experience, and
+        baseline performance.
       </p>
       <p>
-        In questo progetto preferisco semplicità e configurazione centralizzata per ridurre attrito
-        quando il blog crescerà (tag, RSS, analytics, newsletter, MDX).
+        In this project I prioritize simplicity and centralized configuration to reduce friction as
+        the blog grows (tags, RSS, analytics, newsletter, MDX).
       </p>
     </section>
   );

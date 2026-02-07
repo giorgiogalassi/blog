@@ -1,8 +1,8 @@
 export const siteConfig = {
   name: 'Mario Rossi',
-  title: 'Mario Rossi | Blog personale',
+  title: 'Mario Rossi | Personal Blog',
   description:
-    'Blog personale su ingegneria software, prodotto e sviluppo web. Articoli pubblicati su Medium e altre piattaforme.',
+    'A personal blog about software engineering, product thinking, and web development. Full articles are published on external platforms.',
   url: 'https://example.com',
   nav: [
     { label: 'Home', href: '/' },

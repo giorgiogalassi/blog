@@ -9,7 +9,7 @@ export function Header() {
         <Link href="/" className="brand">
           {siteConfig.name}
         </Link>
-        <nav aria-label="Navigazione principale">
+        <nav aria-label="Main navigation">
           <ul className="nav-list">
             {siteConfig.nav.map((item) => (
               <li key={item.href}>
