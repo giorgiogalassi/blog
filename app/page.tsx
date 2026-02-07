@@ -12,19 +12,31 @@ export default function HomePage() {
     <section className="page container">
       <div className="home-layout">
         <aside className="profile-column">
-          <div className="photo-slot" aria-label="Profile photo placeholder">
-            <span>Photo placeholder</span>
+          <div className="photo-slot" aria-label="Profile photo">
+            <img
+              src="/images/profile/profile-big-2.jpeg"
+              alt="Giorgio Galassi"
+              className="profile-photo"
+            />
           </div>
 
           <div className="social-icons" aria-label="Social links">
             <a href={siteConfig.social.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-              in
+              <img src="/images/socials/LI-In-Bug.png" alt="LinkedIn" className="social-icon-image" />
             </a>
             <a href={siteConfig.social.medium} target="_blank" rel="noreferrer" aria-label="Medium">
-              M
+              <img
+                src="/images/socials/Medium-Icon-White.svg"
+                alt="Medium"
+                className="social-icon-image"
+              />
             </a>
             <a href={siteConfig.social.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-              GH
+              <img
+                src="/images/socials/GitHub_Invertocat_White_Clearspace.svg"
+                alt="GitHub"
+                className="social-icon-image"
+              />
             </a>
           </div>
         </aside>
