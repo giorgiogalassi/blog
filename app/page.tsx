@@ -14,7 +14,7 @@ export default function HomePage() {
         <aside className="profile-column">
           <div className="photo-slot" aria-label="Profile photo">
             <img
-              src="/images/profile/profile-big-2.png"
+              src="/images/profile/profile-big-2.jpeg"
               alt="Giorgio Galassi"
               className="profile-photo"
             />
@@ -26,14 +26,14 @@ export default function HomePage() {
             </a>
             <a href={siteConfig.social.medium} target="_blank" rel="noreferrer" aria-label="Medium">
               <img
-                src="/images/socials/Medium-Icon-White.png"
+                src="/images/socials/Medium-Icon-White.svg"
                 alt="Medium"
                 className="social-icon-image"
               />
             </a>
             <a href={siteConfig.social.github} target="_blank" rel="noreferrer" aria-label="GitHub">
               <img
-                src="/images/socials/GitHub_Invertocat_White_Clearspace.png"
+                src="/images/socials/GitHub_Invertocat_White_Clearspace.svg"
                 alt="GitHub"
                 className="social-icon-image"
               />
