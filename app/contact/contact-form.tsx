@@ -509,7 +509,7 @@ function CommonProjectFields({
       <label>Budget range</label>
       <p className="field-caption">This helps me quickly understand whether I can help and avoid back-and-forth with no context.</p>
       <div className="radio-group">
-        {['< 1k', '1–3k', '3–7k', '7–15k', '15k+', 'I'm not sure / I want an estimate'].map((item) => (
+        {['< 1k', '1–3k', '3–7k', '7–15k', '15k+', "I'm not sure / I want an estimate"].map((item) => (
           <label key={item}>
             <input
               type="radio"

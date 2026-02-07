@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     })
   ]);
 
-  return NextResponse.json({ message: 'Request received! I'll reply within 2 business days.' }, { status: 200 });
+  return NextResponse.json({ message: "Request received! I'll reply within 2 business days." }, { status: 200 });
 }
 
 function validatePayload(body: ContactPayload): { ok: true } | { ok: false; message: string } {

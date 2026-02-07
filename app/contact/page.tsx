@@ -7,7 +7,7 @@ import { ContactForm } from './contact-form';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Tell me about your project: I'll reply with concrete next steps and a realistic estimate.'
+  description: "Tell me about your project: I'll reply with concrete next steps and a realistic estimate."
 };
 
 export default function ContactPage() {
