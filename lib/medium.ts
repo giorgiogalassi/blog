@@ -17,7 +17,6 @@ type Rss2JsonResponse = {
 export type MediumArticle = {
   id: string;
   title: string;
-  summary: string;
   publishedAt: string;
   url: string;
   categories: string[];
@@ -30,13 +29,6 @@ function toSlug(url: string) {
     .replace(/^https?:\/\//, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-}
-
-function stripHtml(html: string) {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 function extractImageFromDescription(description: string) {
@@ -52,7 +44,6 @@ function mapItemToMediumArticle(item: Rss2JsonItem): MediumArticle {
   return {
     id: toSlug(item.link),
     title: item.title,
-    summary: stripHtml(item.description),
     publishedAt: item.pubDate,
     url: item.link,
     categories: item.categories ?? [],

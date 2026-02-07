@@ -26,7 +26,6 @@ export default async function ArticlesPage() {
             ) : null}
 
             <h2>{article.title}</h2>
-            <p>{article.summary}</p>
 
             <p className="card-meta">
               Medium · {new Date(article.publishedAt).toLocaleDateString('en-US')}
