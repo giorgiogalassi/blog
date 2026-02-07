@@ -4,7 +4,7 @@ A minimal personal blog with orange accents, built with Next.js App Router and d
 
 ## Stack and Versions
 
-- Next.js 15.1.6
+- Next.js 16.1.0
 - React 19.0.0
 - TypeScript 5.7.2
 - ESLint 9 + `eslint-config-next`
@@ -20,10 +20,26 @@ npm run dev
 ## Scripts
 
 - `npm run dev` – run development server
-- `npm run lint` – run linting
+- `npm run lint` – run linting (ESLint CLI)
 - `npm run build` – create production build
 - `npm run format` – check formatting
 - `npm run format:write` – fix formatting
+
+## Next.js 16 migration notes
+
+- Upgraded from `next@15.1.6` to `next@16.1.0` (security/deploy requirement).
+- `eslint-config-next` has been aligned to `16.1.0`.
+- `lint` script now uses `eslint .` directly for compatibility with Next 16 workflows.
+- Dynamic route handler params remain Promise-based in `/app/go/[slug]/route.ts` to satisfy generated route type checks.
+- Verify local/runtime Node.js version is compatible with Next 16 before deploy.
+
+## Routes
+
+- `/` home page
+- `/about` profile with photo slot and social links
+- `/articles` external article list
+- `/go/[slug]` redirect endpoint for external resources
+- `/contact` collaboration form for freelance inquiries
 
 ## External Article Redirects
 
