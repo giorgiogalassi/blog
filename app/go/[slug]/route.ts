@@ -8,7 +8,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   const target = articleRedirectMap[slug];
 
   if (!target) {
-    return NextResponse.json({ error: 'Slug non trovato' }, { status: 404 });
+    return NextResponse.json({ error: 'Slug not found' }, { status: 404 });
   }
 
   // 302 keeps flexibility while links remain stable through /go/[slug].

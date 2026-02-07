@@ -5,16 +5,16 @@ import { externalArticles } from '@/data/articles';
 
 export const metadata: Metadata = {
   title: 'Articles',
-  description: 'Lista di articoli esterni pubblicati su Medium e altre piattaforme.'
+  description: 'A list of external articles published on Medium and other platforms.'
 };
 
 export default function ArticlesPage() {
   return (
     <section className="page container">
-      <h1>Articoli esterni</h1>
+      <h1>External articles</h1>
       <p className="lead">
-        Ogni articolo usa una rotta interna stabile (<code>/go/[slug]</code>) che effettua redirect
-        verso la piattaforma esterna.
+        Every article uses a stable internal route (<code>/go/[slug]</code>) that redirects to the
+        external platform.
       </p>
 
       <div className="card-list">
@@ -23,18 +23,18 @@ export default function ArticlesPage() {
             <h2>{article.title}</h2>
             <p>{article.summary}</p>
             <p className="card-meta">
-              {article.platform} · {new Date(article.publishedAt).toLocaleDateString('it-IT')}
+              {article.platform} · {new Date(article.publishedAt).toLocaleDateString('en-US')}
             </p>
             <Link href={`/go/${article.slug}`} className="button-link">
-              Leggi articolo
+              Read article
             </Link>
           </article>
         ))}
       </div>
 
       <p className="note">
-        Per aggiungere un nuovo articolo, aggiorna solo <code>data/articles.ts</code>: la lista e il
-        redirect si aggiornano automaticamente.
+        To add a new article, update only <code>data/articles.ts</code>: both the list and redirect
+        map update automatically.
       </p>
     </section>
   );

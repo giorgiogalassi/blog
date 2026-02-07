@@ -1,8 +1,8 @@
-# Personal blog (Next.js)
+# Personal Blog (Next.js)
 
-Blog personale minimale con accenti arancioni, App Router e gestione data-driven di articoli esterni.
+A minimal personal blog with orange accents, built with Next.js App Router and data-driven external article redirects.
 
-## Stack e versioni
+## Stack and Versions
 
 - Next.js 15.1.6
 - React 19.0.0
@@ -10,7 +10,7 @@ Blog personale minimale con accenti arancioni, App Router e gestione data-driven
 - ESLint 9 + `eslint-config-next`
 - Prettier 3.4.2
 
-## Avvio locale
+## Local Development
 
 ```bash
 npm install
@@ -19,26 +19,26 @@ npm run dev
 
 ## Scripts
 
-- `npm run dev` – avvio in sviluppo
-- `npm run lint` – linting
-- `npm run build` – build produzione
-- `npm run format` – controllo formatting
+- `npm run dev` – run development server
+- `npm run lint` – run linting
+- `npm run build` – create production build
+- `npm run format` – check formatting
 - `npm run format:write` – fix formatting
 
-## Redirect articoli esterni
+## External Article Redirects
 
-Gli articoli stanno in `data/articles.ts`.
+External articles are defined in `data/articles.ts`.
 
-- La pagina `/articles` usa `externalArticles` per la lista.
-- La rotta `/go/[slug]` usa `articleRedirectMap` per reindirizzare all'URL esterno.
+- `/articles` reads `externalArticles` to render the list.
+- `/go/[slug]` reads `articleRedirectMap` and redirects to the external URL.
 
-Per aggiungere un nuovo articolo basta aggiungere un record in `externalArticles`.
+To add a new article, add a new item to `externalArticles`.
 
-## Estensioni future (non implementate)
+## Future Extensions (not implemented yet)
 
-- tag/categorie
-- ricerca locale o remota
-- feed RSS
+- tags/categories
+- local or remote search
+- RSS feed
 - analytics
 - newsletter
-- contenuti MDX
+- MDX content
