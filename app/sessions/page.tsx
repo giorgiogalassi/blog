@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-import { getSpeakerContent } from '@/lib/sessionize';
+import { getSpeakerContent, type SpeakerEvent } from '@/lib/sessionize';
 
 export const metadata: Metadata = {
   title: 'Sessions',
@@ -19,8 +19,40 @@ function formatDate(value: string | null) {
   });
 }
 
+function formatSessionDescription(description: string) {
+  return description
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\r\n|\r|\n/g, '<br />');
+}
+
+function getEventYear(event: SpeakerEvent) {
+  const referenceDate = event.startsAt ?? event.endsAt;
+
+  if (!referenceDate) {
+    return 'Unknown';
+  }
+
+  return String(new Date(referenceDate).getFullYear());
+}
+
+function groupEventsByYear(events: SpeakerEvent[]) {
+  const grouped = new Map<string, SpeakerEvent[]>();
+
+  for (const event of events) {
+    const year = getEventYear(event);
+    const current = grouped.get(year) ?? [];
+    current.push(event);
+    grouped.set(year, current);
+  }
+
+  return [...grouped.entries()].sort(([yearA], [yearB]) => yearB.localeCompare(yearA));
+}
+
 export default async function SessionsPage() {
   const { sessions, events } = await getSpeakerContent();
+  const groupedEvents = groupEventsByYear(events);
 
   return (
     <section className="page container">
@@ -37,7 +69,7 @@ export default async function SessionsPage() {
             <article key={session.id} className="card">
               <h2>{session.title}</h2>
               {session.language ? <p className="card-meta">Language: {session.language}</p> : null}
-              <p>{session.description}</p>
+              <p dangerouslySetInnerHTML={{ __html: formatSessionDescription(session.description) }} />
               {session.url ? (
                 <a href={session.url} className="button-link" target="_blank" rel="noreferrer">
                   View session
@@ -50,31 +82,39 @@ export default async function SessionsPage() {
         </div>
       </details>
 
-      <details className="card" style={{ marginTop: '1rem' }}>
-        <summary>
-          <strong>Events ({events.length})</strong>
-        </summary>
+      <section style={{ marginTop: '1rem' }}>
+        <h2>Events</h2>
 
-        <div className="card-list">
-          {events.map((event) => (
-            <article key={event.id} className="card">
-              <h2>{event.name}</h2>
-              <p className="card-meta">
-                {formatDate(event.startsAt)}
-                {event.endsAt && event.endsAt !== event.startsAt ? ` - ${formatDate(event.endsAt)}` : ''}
-              </p>
-              {event.location ? <p>{event.location}</p> : null}
-              {event.url ? (
-                <a href={event.url} className="button-link" target="_blank" rel="noreferrer">
-                  Visit event
-                </a>
-              ) : null}
-            </article>
-          ))}
+        {groupedEvents.map(([year, yearEvents], index) => (
+          <details key={year} open={index === 0} className="card" style={{ marginTop: '1rem' }}>
+            <summary>
+              <strong>
+                {year} ({yearEvents.length})
+              </strong>
+            </summary>
 
-          {events.length === 0 ? <p className="note">No events available.</p> : null}
-        </div>
-      </details>
+            <div className="card-list">
+              {yearEvents.map((event) => (
+                <article key={event.id} className="card">
+                  <h3>{event.name}</h3>
+                  <p className="card-meta">
+                    {formatDate(event.startsAt)}
+                    {event.endsAt && event.endsAt !== event.startsAt ? ` - ${formatDate(event.endsAt)}` : ''}
+                  </p>
+                  {event.location ? <p>{event.location}</p> : null}
+                  {event.url ? (
+                    <a href={event.url} className="button-link" target="_blank" rel="noreferrer">
+                      Visit event
+                    </a>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </details>
+        ))}
+
+        {events.length === 0 ? <p className="note">No events available.</p> : null}
+      </section>
     </section>
   );
 }
