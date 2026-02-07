@@ -20,7 +20,12 @@ export default function ContactPage() {
           pagamento.
         </p>
         <div className="contact-hero-actions">
-          <Link href="https://calendly.com" className="button-link" target="_blank" rel="noreferrer">
+          <Link
+            href="https://calendly.com/ged-galassi/30min"
+            className="button-link"
+            target="_blank"
+            rel="noreferrer"
+          >
             Prenota una call
           </Link>
           <a className="button-link button-link-secondary" href={`mailto:${siteConfig.email}`}>

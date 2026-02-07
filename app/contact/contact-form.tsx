@@ -28,8 +28,6 @@ type FormState = {
   engagementType: string;
   startPreference: string;
   topic: string;
-  format: string;
-  preferredTimes: string;
   stack: string;
   painPoints: string[];
   accessToAnalytics: string;
@@ -48,7 +46,6 @@ type FormState = {
   message: string;
   materialsLink: string;
   privacyAccepted: boolean;
-  marketingAccepted: boolean;
   websiteField: string;
 };
 
@@ -66,8 +63,6 @@ const initialState: FormState = {
   engagementType: '',
   startPreference: '',
   topic: '',
-  format: '',
-  preferredTimes: '',
   stack: '',
   painPoints: [],
   accessToAnalytics: '',
@@ -86,7 +81,6 @@ const initialState: FormState = {
   message: '',
   materialsLink: '',
   privacyAccepted: false,
-  marketingAccepted: false,
   websiteField: ''
 };
 
@@ -223,16 +217,6 @@ export function ContactForm() {
           Ho letto la <a href="/privacy">privacy policy</a> *
         </label>
 
-        <label className="checkbox-row" htmlFor="marketingAccepted">
-          <input
-            id="marketingAccepted"
-            name="marketingAccepted"
-            type="checkbox"
-            checked={form.marketingAccepted}
-            onChange={(event) => updateField('marketingAccepted', event.target.checked)}
-          />
-          Voglio ricevere aggiornamenti occasionali.
-        </label>
 
         <input
           type="text"
@@ -270,25 +254,8 @@ function renderConditionalSection(
         <label htmlFor="topic">Su cosa vuoi una mano? *</label>
         <textarea id="topic" rows={4} value={form.topic} onChange={(event) => updateField('topic', event.target.value)} required />
 
-        <p className="field-caption">In alternativa puoi prenotare subito una call dal bottone in alto.</p>
+        <p className="field-caption">Per durata e orario prenota direttamente dal link Calendly in alto.</p>
 
-        <label>Formato *</label>
-        <div className="radio-group">
-          {['Call 60’', 'Call 90’', 'Call 2h'].map((item) => (
-            <label key={item}>
-              <input
-                type="radio"
-                name="format"
-                checked={form.format === item}
-                onChange={() => updateField('format', item)}
-              />
-              {item}
-            </label>
-          ))}
-        </div>
-
-        <label htmlFor="preferredTimes">Fasce orarie preferite</label>
-        <input id="preferredTimes" value={form.preferredTimes} onChange={(event) => updateField('preferredTimes', event.target.value)} />
       </fieldset>
     );
   }
@@ -537,7 +504,7 @@ function CommonProjectFields({
         </>
       )}
 
-      <label>Budget range</label>
+      <label className="field-label-strong">Budget range</label>
       <p className="field-caption">Mi serve per dirti subito se posso aiutarti e per evitare ping inutili.</p>
       <div className="radio-group">
         {['< 1k', '1–3k', '3–7k', '7–15k', '15k+', 'Non lo so / voglio una stima'].map((item) => (
@@ -568,7 +535,7 @@ function CommonProjectFields({
         ))}
       </div>
 
-      <label htmlFor="startPreference">Quando vuoi iniziare?</label>
+      <label className="field-label-strong" htmlFor="startPreference">Quando vuoi iniziare?</label>
       <select id="startPreference" value={form.startPreference} onChange={(event) => updateField('startPreference', event.target.value)}>
         <option value="">Seleziona...</option>
         <option value="Subito">Subito</option>

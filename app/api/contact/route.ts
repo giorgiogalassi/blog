@@ -16,8 +16,6 @@ type ContactPayload = {
   engagementType?: string;
   startPreference?: string;
   topic?: string;
-  format?: string;
-  preferredTimes?: string;
   stack?: string;
   painPoints?: string[];
   accessToAnalytics?: string;
@@ -36,7 +34,6 @@ type ContactPayload = {
   message?: string;
   materialsLink?: string;
   privacyAccepted?: boolean;
-  marketingAccepted?: boolean;
   websiteField?: string;
 };
 
@@ -144,8 +141,6 @@ function formatOwnerMessage(body: ContactPayload, context: { timezone: string; t
     `Engagement: ${body.engagementType ?? '-'}`,
     `Riassunto progetto: ${body.projectSummary ?? '-'}`,
     `Topic: ${body.topic ?? '-'}`,
-    `Formato consulenza: ${body.format ?? '-'}`,
-    `Fasce orarie: ${body.preferredTimes ?? '-'}`,
     `Stack: ${body.stack ?? '-'}`,
     `Pain points: ${body.painPoints?.join(', ') || '-'}`,
     `Accesso analytics: ${body.accessToAnalytics ?? '-'}`,
@@ -160,7 +155,6 @@ function formatOwnerMessage(body: ContactPayload, context: { timezone: string; t
     `Audience: ${body.audienceSize ?? '-'} | Fee budget: ${body.feeBudget ?? '-'}`,
     `Messaggio libero: ${body.message ?? '-'}`,
     `Link materiali: ${body.materialsLink ?? '-'}`,
-    `Consenso marketing: ${body.marketingAccepted ? 'Sì' : 'No'}`,
     `Timestamp: ${context.timestamp} (${context.timezone})`
   ];
 
