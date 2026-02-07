@@ -1,41 +1,42 @@
 const SESSIONIZE_SPEAKER_URL = 'https://sessionize.com/api/speaker/json/s6re7whhdo';
 
-type SessionizeCategory = {
-  name?: string;
-  categoryItems?: string[];
-};
-
 type SessionizeSession = {
-  id?: string;
+  id?: string | number;
   title?: string;
   description?: string;
-  startsAt?: string;
-  eventName?: string;
-  eventWebsite?: string;
-  eventUrl?: string;
-  categories?: SessionizeCategory[];
+  sessionUrl?: string;
+  language?: string;
+};
+
+type SessionizeEvent = {
+  id?: string | number;
+  name?: string;
+  eventStartDate?: string;
+  eventEndDate?: string;
+  location?: string;
+  website?: string | null;
 };
 
 type SessionizeSpeakerResponse = {
   sessions?: SessionizeSession[];
-};
-
-type SessionizeSpeakerEventResponse = {
-  event?: {
-    name?: string;
-    website?: string;
-  };
-  sessions?: SessionizeSession[];
+  events?: SessionizeEvent[];
 };
 
 export type SpeakerSession = {
   id: string;
   title: string;
   description: string;
+  url: string | null;
+  language: string | null;
+};
+
+export type SpeakerEvent = {
+  id: string;
+  name: string;
   startsAt: string | null;
-  eventName: string;
-  eventUrl: string | null;
-  categories: string[];
+  endsAt: string | null;
+  location: string | null;
+  url: string | null;
 };
 
 function toSlug(value: string) {
@@ -46,66 +47,62 @@ function toSlug(value: string) {
     .replace(/^-|-$/g, '');
 }
 
-function extractCategories(categories: SessionizeCategory[] | undefined) {
-  if (!categories) {
-    return [];
-  }
-
-  return categories.flatMap((category) => category.categoryItems ?? []);
-}
-
-function mapToSpeakerSession(
-  session: SessionizeSession,
-  defaults?: { eventName?: string; eventUrl?: string }
-): SpeakerSession {
-  const title = session.title?.trim() || 'Untitled session';
-  const eventName = session.eventName?.trim() || defaults?.eventName?.trim() || 'Conference event';
-  const eventUrl = session.eventWebsite ?? session.eventUrl ?? defaults?.eventUrl ?? null;
-
-  return {
-    id: session.id?.trim() || toSlug(`${title}-${eventName}`),
-    title,
-    description: session.description?.trim() || 'No description available for this session yet.',
-    startsAt: session.startsAt ?? null,
-    eventName,
-    eventUrl,
-    categories: extractCategories(session.categories)
-  };
-}
-
-export async function getSpeakerSessions(): Promise<SpeakerSession[]> {
+async function getSessionizeSpeakerData(): Promise<SessionizeSpeakerResponse> {
   try {
     const response = await fetch(SESSIONIZE_SPEAKER_URL, {
       next: { revalidate: 1800 }
     });
 
-    // In build/prerender environments the endpoint can be blocked (e.g. 403).
-    // Returning an empty list keeps the page renderable and avoids hard failures.
     if (!response.ok) {
-      return [];
+      return {};
     }
 
-    const payload = (await response.json()) as
-      | SessionizeSpeakerResponse
-      | SessionizeSpeakerEventResponse[];
-
-    if (Array.isArray(payload)) {
-      return payload.flatMap((entry) => {
-        const eventName = entry.event?.name;
-        const eventUrl = entry.event?.website;
-
-        return (entry.sessions ?? []).map((session) =>
-          mapToSpeakerSession(session, { eventName, eventUrl })
-        );
-      });
-    }
-
-    if (!payload.sessions) {
-      return [];
-    }
-
-    return payload.sessions.map((session) => mapToSpeakerSession(session));
+    return (await response.json()) as SessionizeSpeakerResponse;
   } catch {
-    return [];
+    return {};
   }
+}
+
+function mapToSpeakerSession(session: SessionizeSession): SpeakerSession {
+  const title = session.title?.trim() || 'Untitled session';
+
+  return {
+    id: String(session.id ?? toSlug(title)),
+    title,
+    description: session.description?.trim() || 'No description available for this session yet.',
+    url: session.sessionUrl ?? null,
+    language: session.language ?? null
+  };
+}
+
+function mapToSpeakerEvent(event: SessionizeEvent): SpeakerEvent {
+  const name = event.name?.trim() || 'Unnamed event';
+
+  return {
+    id: String(event.id ?? toSlug(name)),
+    name,
+    startsAt: event.eventStartDate ?? null,
+    endsAt: event.eventEndDate ?? null,
+    location: event.location ?? null,
+    url: event.website ?? null
+  };
+}
+
+export async function getSpeakerContent(): Promise<{ sessions: SpeakerSession[]; events: SpeakerEvent[] }> {
+  const payload = await getSessionizeSpeakerData();
+
+  return {
+    sessions: (payload.sessions ?? []).map(mapToSpeakerSession),
+    events: (payload.events ?? []).map(mapToSpeakerEvent)
+  };
+}
+
+export async function getSpeakerSessions(): Promise<SpeakerSession[]> {
+  const content = await getSpeakerContent();
+  return content.sessions;
+}
+
+export async function getSpeakerEvents(): Promise<SpeakerEvent[]> {
+  const content = await getSpeakerContent();
+  return content.events;
 }

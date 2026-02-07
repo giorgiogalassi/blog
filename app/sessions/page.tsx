@@ -1,65 +1,80 @@
 import type { Metadata } from 'next';
 
-import { getSpeakerSessions } from '@/lib/sessionize';
+import { getSpeakerContent } from '@/lib/sessionize';
 
 export const metadata: Metadata = {
   title: 'Sessions',
-  description: 'A dynamic list of conference sessions from Sessionize.'
+  description: 'Sessions and events generated from Sessionize.'
 };
 
+function formatDate(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return new Date(value).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+}
+
 export default async function SessionsPage() {
-  const sessions = await getSpeakerSessions();
+  const { sessions, events } = await getSpeakerContent();
 
   return (
     <section className="page container">
-      <h1>Conference sessions</h1>
-      <p className="lead">
-        This list is generated automatically from Sessionize to keep talks and events always up to
-        date.
-      </p>
+      <h1>Speaking</h1>
+      <p className="lead">Sessions and events are synced automatically from Sessionize.</p>
 
-      <div className="card-list">
-        {sessions.map((session) => (
-          <article key={session.id} className="card">
-            <h2>{session.title}</h2>
+      <details open className="card" style={{ marginTop: '1rem' }}>
+        <summary>
+          <strong>Sessions ({sessions.length})</strong>
+        </summary>
 
-            <p className="card-meta">
-              {session.eventName}
-              {session.startsAt
-                ? ` · ${new Date(session.startsAt).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}`
-                : ''}
-            </p>
+        <div className="card-list">
+          {sessions.map((session) => (
+            <article key={session.id} className="card">
+              <h2>{session.title}</h2>
+              {session.language ? <p className="card-meta">Language: {session.language}</p> : null}
+              <p>{session.description}</p>
+              {session.url ? (
+                <a href={session.url} className="button-link" target="_blank" rel="noreferrer">
+                  View session
+                </a>
+              ) : null}
+            </article>
+          ))}
 
-            <p>{session.description}</p>
+          {sessions.length === 0 ? <p className="note">No sessions available.</p> : null}
+        </div>
+      </details>
 
-            {session.categories.length > 0 ? (
-              <ul className="category-list" aria-label="Session categories">
-                {session.categories.map((category) => (
-                  <li key={`${session.id}-${category}`} className="category-pill">
-                    {category}
-                  </li>
-                ))}
-              </ul>
-            ) : null}
+      <details className="card" style={{ marginTop: '1rem' }}>
+        <summary>
+          <strong>Events ({events.length})</strong>
+        </summary>
 
-            {session.eventUrl ? (
-              <a href={session.eventUrl} className="button-link" target="_blank" rel="noreferrer">
-                Visit event
-              </a>
-            ) : null}
-          </article>
-        ))}
-      </div>
+        <div className="card-list">
+          {events.map((event) => (
+            <article key={event.id} className="card">
+              <h2>{event.name}</h2>
+              <p className="card-meta">
+                {formatDate(event.startsAt)}
+                {event.endsAt && event.endsAt !== event.startsAt ? ` - ${formatDate(event.endsAt)}` : ''}
+              </p>
+              {event.location ? <p>{event.location}</p> : null}
+              {event.url ? (
+                <a href={event.url} className="button-link" target="_blank" rel="noreferrer">
+                  Visit event
+                </a>
+              ) : null}
+            </article>
+          ))}
 
-      {sessions.length === 0 ? (
-        <p className="note">
-          No sessions are currently available from Sessionize. Check API availability.
-        </p>
-      ) : null}
+          {events.length === 0 ? <p className="note">No events available.</p> : null}
+        </div>
+      </details>
     </section>
   );
 }
