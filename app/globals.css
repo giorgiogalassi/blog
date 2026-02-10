@@ -197,6 +197,58 @@ a:active {
   transform: translateY(-3px);
 }
 
+/* Subtle open/close micro-interactions for native details/summary */
+details.card {
+  overflow: clip;
+}
+
+details.card > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--motion-fast) var(--ease-smooth);
+}
+
+details.card > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.card > summary::after {
+  content: '';
+  width: 0.45rem;
+  height: 0.45rem;
+  border-right: 2px solid var(--color-muted);
+  border-bottom: 2px solid var(--color-muted);
+  transform: rotate(45deg);
+  transition: transform var(--motion-base) var(--ease-bounce-soft);
+  flex-shrink: 0;
+}
+
+details.card[open] > summary::after {
+  transform: rotate(225deg);
+}
+
+details.card > :not(summary) {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--motion-bounce) var(--ease-bounce-soft),
+    opacity var(--motion-fast) var(--ease-smooth);
+}
+
+details.card > :not(summary) > * {
+  overflow: hidden;
+}
+
+details.card[open] > :not(summary) {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
 .card-meta {
   color: var(--color-muted);
   font-size: 0.92rem;
@@ -529,7 +581,8 @@ a:active {
     border-color var(--motion-fast) var(--ease-smooth),
     box-shadow var(--motion-fast) var(--ease-smooth),
     transform var(--motion-fast) var(--ease-smooth),
-    background-color var(--motion-fast) var(--ease-smooth);
+    background-color var(--motion-fast) var(--ease-smooth),
+    background-size var(--motion-fast) var(--ease-smooth);
 }
 
 .contact-form-extended select {
@@ -550,6 +603,9 @@ a:active {
 .contact-form-extended select:hover,
 .contact-form-extended select:focus-visible {
   background-color: #fff8ef;
+  background-size:
+    0.4rem 0.4rem,
+    0.4rem 0.4rem;
 }
 
 .contact-form-extended select:active {
@@ -665,13 +721,17 @@ a:active {
   transition:
     border-color var(--motion-fast) var(--ease-smooth),
     transform var(--motion-fast) var(--ease-smooth),
-    background-color var(--motion-fast) var(--ease-smooth);
+    background-color var(--motion-fast) var(--ease-smooth),
+    background-size var(--motion-fast) var(--ease-smooth);
 }
 
 .feedback-year-form select:hover,
 .feedback-year-form select:focus-visible {
   border-color: var(--color-accent);
   background-color: #fff8ef;
+  background-size:
+    0.4rem 0.4rem,
+    0.4rem 0.4rem;
   transform: translateY(-1px);
 }
 
@@ -692,5 +752,13 @@ a:active {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@supports selector(select::picker(select)) {
+  .contact-form-extended select::picker(select),
+  .feedback-year-form select::picker(select) {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
   }
 }
