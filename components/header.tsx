@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { siteConfig } from '@/config/site';
@@ -20,7 +21,14 @@ export function Header() {
     <header className="site-header">
       <div className="container nav-shell">
         <Link href="/" className="brand" onClick={closeMenu}>
-          {siteConfig.name}
+          <Image
+            src="/images/logo/logo.png"
+            alt={siteConfig.name}
+            width={160}
+            height={32}
+            className="brand-logo"
+            priority
+          />
         </Link>
 
         <button
