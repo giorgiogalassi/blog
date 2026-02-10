@@ -39,6 +39,7 @@ npm run dev
 - `/about` profile with photo slot and social links
 - `/articles` external article list
 - `/go/[slug]` redirect endpoint for external resources
+- `/feedback` page to collect talk feedback with year-based Sessionize sessions
 - `/contact` collaboration form for freelance inquiries
 
 ## External Article Redirects
