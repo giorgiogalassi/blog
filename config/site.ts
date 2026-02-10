@@ -9,6 +9,7 @@ export const siteConfig = {
     { label: 'Home', href: '/' },
     { label: 'Articles', href: '/articles' },
     { label: 'Sessions', href: '/sessions' },
+    { label: 'Feedback', href: '/feedback' },
     { label: 'Contact', href: '/contact' }
   ],
   social: {

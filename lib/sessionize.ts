@@ -1,3 +1,5 @@
+import { cache } from 'react';
+
 const SESSIONIZE_SPEAKER_URL = 'https://sessionize.com/api/speaker/json/s6re7whhdo';
 
 type SessionizeSession = {
@@ -6,6 +8,9 @@ type SessionizeSession = {
   description?: string;
   sessionUrl?: string;
   language?: string;
+  eventStartDate?: string;
+  startsAt?: string;
+  date?: string;
 };
 
 type SessionizeEvent = {
@@ -28,6 +33,7 @@ export type SpeakerSession = {
   description: string;
   url: string | null;
   language: string | null;
+  year: number | null;
 };
 
 export type SpeakerEvent = {
@@ -47,7 +53,7 @@ function toSlug(value: string) {
     .replace(/^-|-$/g, '');
 }
 
-async function getSessionizeSpeakerData(): Promise<SessionizeSpeakerResponse> {
+const getSessionizeSpeakerData = cache(async (): Promise<SessionizeSpeakerResponse> => {
   try {
     const response = await fetch(SESSIONIZE_SPEAKER_URL, {
       next: { revalidate: 1800 }
@@ -61,6 +67,15 @@ async function getSessionizeSpeakerData(): Promise<SessionizeSpeakerResponse> {
   } catch {
     return {};
   }
+});
+
+function getYearFromDate(date: string | undefined) {
+  if (!date) {
+    return null;
+  }
+
+  const year = new Date(date).getFullYear();
+  return Number.isFinite(year) ? year : null;
 }
 
 function mapToSpeakerSession(session: SessionizeSession): SpeakerSession {
@@ -71,7 +86,8 @@ function mapToSpeakerSession(session: SessionizeSession): SpeakerSession {
     title,
     description: session.description?.trim() || 'No description available for this session yet.',
     url: session.sessionUrl ?? null,
-    language: session.language ?? null
+    language: session.language ?? null,
+    year: getYearFromDate(session.eventStartDate ?? session.startsAt ?? session.date)
   };
 }
 
@@ -105,4 +121,16 @@ export async function getSpeakerSessions(): Promise<SpeakerSession[]> {
 export async function getSpeakerEvents(): Promise<SpeakerEvent[]> {
   const content = await getSpeakerContent();
   return content.events;
+}
+
+export async function getSpeakerSessionsByYear(year: number): Promise<SpeakerSession[]> {
+  const sessions = await getSpeakerSessions();
+
+  return sessions.filter((session) => session.year === year);
+}
+
+export async function getSpeakerSessionYears(): Promise<number[]> {
+  const sessions = await getSpeakerSessions();
+
+  return [...new Set(sessions.map((session) => session.year).filter((year): year is number => year !== null))].sort((a, b) => b - a);
 }
