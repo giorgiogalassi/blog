@@ -55,8 +55,8 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!form.name.trim() || !form.email.trim() || !form.sessionId || !form.feedback.trim()) {
-      setStatus({ type: 'error', message: 'Compila tutti i campi obbligatori prima di inviare il feedback.' });
+    if (!form.sessionId || !form.feedback.trim()) {
+      setStatus({ type: 'error', message: 'Please fill in all required fields before submitting.' });
       return;
     }
 
@@ -79,15 +79,15 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
       if (!response.ok) {
         setStatus({
           type: 'error',
-          message: payload.message ?? 'Invio non riuscito. Riprova tra qualche minuto.'
+          message: payload.message ?? 'Unable to submit right now. Please try again in a few minutes.'
         });
         return;
       }
 
-      setStatus({ type: 'success', message: payload.message ?? 'Feedback inviato con successo.' });
+      setStatus({ type: 'success', message: payload.message ?? 'Thanks! Your feedback was submitted.' });
       setForm(initialState);
     } catch {
-      setStatus({ type: 'error', message: 'Errore di rete. Riprova tra qualche minuto.' });
+      setStatus({ type: 'error', message: 'Network error. Please try again in a few minutes.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -96,28 +96,21 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
   return (
     <form className="contact-form contact-form-extended" onSubmit={handleSubmit} noValidate>
       <fieldset>
-        <legend>Il tuo feedback</legend>
+        <legend>Your feedback</legend>
 
-        <label htmlFor="feedback-name">Nome *</label>
-        <input
-          id="feedback-name"
-          name="name"
-          value={form.name}
-          onChange={(event) => updateField('name', event.target.value)}
-          required
-        />
+        <label htmlFor="feedback-name">Name (optional)</label>
+        <input id="feedback-name" name="name" value={form.name} onChange={(event) => updateField('name', event.target.value)} />
 
-        <label htmlFor="feedback-email">Email *</label>
+        <label htmlFor="feedback-email">Email (optional)</label>
         <input
           id="feedback-email"
           name="email"
           type="email"
           value={form.email}
           onChange={(event) => updateField('email', event.target.value)}
-          required
         />
 
-        <label htmlFor="feedback-speech">Speech *</label>
+        <label htmlFor="feedback-speech">Talk *</label>
         <select
           id="feedback-speech"
           name="sessionId"
@@ -126,7 +119,7 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
           required
           disabled={speeches.length === 0}
         >
-          <option value="">Seleziona uno speech</option>
+          <option value="">Select a talk</option>
           {speeches.map((speech) => (
             <option key={speech.id} value={speech.id}>
               {speech.title}
@@ -134,7 +127,7 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
           ))}
         </select>
 
-        <label htmlFor="feedback-rating">Valutazione (1-5) *</label>
+        <label htmlFor="feedback-rating">Rating (1-5) *</label>
         <select
           id="feedback-rating"
           name="rating"
@@ -157,7 +150,7 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
           value={form.feedback}
           onChange={(event) => updateField('feedback', event.target.value)}
           required
-          placeholder="Cosa ti è piaciuto e cosa posso migliorare?"
+          placeholder="What worked well and what should I improve?"
         />
 
         <input
@@ -178,7 +171,7 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
       )}
 
       <button type="submit" className="button-link button-reset" disabled={isSubmitting || speeches.length === 0}>
-        {isSubmitting ? 'Invio in corso...' : 'Invia feedback'}
+        {isSubmitting ? 'Submitting...' : 'Submit feedback'}
       </button>
     </form>
   );

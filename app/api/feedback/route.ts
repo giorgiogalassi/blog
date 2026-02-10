@@ -34,12 +34,12 @@ export async function POST(request: Request) {
   const feedback = payload.feedback?.trim();
   const rating = payload.rating;
 
-  if (!name || !email || !sessionId || !feedback) {
+  if (!sessionId || !feedback) {
     return NextResponse.json({ message: 'Please fill in all required fields.' }, { status: 400 });
   }
 
-  if (!isValidEmail(email)) {
-    return NextResponse.json({ message: 'Please provide a valid email.' }, { status: 400 });
+  if (email && !isValidEmail(email)) {
+    return NextResponse.json({ message: 'Please provide a valid email address or leave it empty.' }, { status: 400 });
   }
 
   if (!rating || rating < 1 || rating > 5) {
@@ -48,10 +48,10 @@ export async function POST(request: Request) {
 
   const submittedAt = new Date().toISOString();
 
-  console.log('[feedback] New speech feedback received', {
+  console.log('[feedback] New talk feedback received', {
     submittedAt,
-    name,
-    email,
+    name: name || null,
+    email: email || null,
     sessionId,
     sessionTitle: payload.sessionTitle?.trim() ?? null,
     year: payload.year ?? null,
