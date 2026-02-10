@@ -190,8 +190,8 @@ a:active {
     border-color var(--motion-fast) var(--ease-smooth);
 }
 
-.card:hover,
-.card:focus-within {
+.card:has(a, button, summary, [role='button']):hover,
+.card:has(a, button, summary, [role='button']):focus-within {
   border-color: #eec39f;
   box-shadow: 0 12px 28px rgb(42 22 12 / 8%);
   transform: translateY(-3px);
@@ -528,7 +528,32 @@ a:active {
   transition:
     border-color var(--motion-fast) var(--ease-smooth),
     box-shadow var(--motion-fast) var(--ease-smooth),
-    transform var(--motion-fast) var(--ease-smooth);
+    transform var(--motion-fast) var(--ease-smooth),
+    background-color var(--motion-fast) var(--ease-smooth);
+}
+
+.contact-form-extended select {
+  appearance: none;
+  padding-right: 2.35rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+    linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) calc(50% - 2px),
+    calc(100% - 0.7rem) calc(50% - 2px);
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+  background-repeat: no-repeat;
+}
+
+.contact-form-extended select:hover,
+.contact-form-extended select:focus-visible {
+  background-color: #fff8ef;
+}
+
+.contact-form-extended select:active {
+  transform: scale(0.99);
 }
 
 .contact-form-extended input:focus,
@@ -623,18 +648,35 @@ a:active {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: #fff;
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 2.35rem 0.6rem 0.75rem;
   font: inherit;
   color: var(--color-fg);
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
+    linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1rem) calc(50% - 2px),
+    calc(100% - 0.7rem) calc(50% - 2px);
+  background-size:
+    0.35rem 0.35rem,
+    0.35rem 0.35rem;
+  background-repeat: no-repeat;
   transition:
     border-color var(--motion-fast) var(--ease-smooth),
-    transform var(--motion-fast) var(--ease-smooth);
+    transform var(--motion-fast) var(--ease-smooth),
+    background-color var(--motion-fast) var(--ease-smooth);
 }
 
 .feedback-year-form select:hover,
 .feedback-year-form select:focus-visible {
   border-color: var(--color-accent);
+  background-color: #fff8ef;
   transform: translateY(-1px);
+}
+
+.feedback-year-form select:active {
+  transform: scale(0.99);
 }
 
 .feedback-year-form select:focus {
