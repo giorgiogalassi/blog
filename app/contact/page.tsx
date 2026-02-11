@@ -1,68 +1,42 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 
+import { ButtonLink } from '@/components/ui/button';
+import { Container } from '@/components/ui/primitives';
 import { siteConfig } from '@/config/site';
 
 import { ContactForm } from './contact-form';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: "Tell me about your project: I'll reply with concrete next steps and a realistic estimate."
+  description: 'Book a call or send a short brief. I reply with realistic next steps.'
 };
 
 export default function ContactPage() {
   return (
-    <section className="page container contact-page">
-      <header className="contact-hero">
-        <h1>Let's talk about your project</h1>
-        <p className="lead">
-          I reply within 2 business days. If your request is urgent, book a paid call directly.
-        </p>
-        <div className="contact-hero-actions">
-          <Link
-            href="https://calendly.com/ged-galassi/30min"
-            className="button-link"
-            target="_blank"
-            rel="noreferrer"
-          >
+    <Container className="page stack stack-lg">
+      <header className="contact-hero stack stack-md">
+        <h1>Contact</h1>
+        <p className="lead">Choose the quickest path. You’ll get a clear response and next steps.</p>
+        <div className="hero-actions">
+          <ButtonLink href="https://calendly.com/ged-galassi/30min" target="_blank" rel="noreferrer" variant="primary">
             Book a call
-          </Link>
-          <a className="button-link button-link-secondary" href={`mailto:${siteConfig.email}`}>
-            Email me
-          </a>
-          <Link
-            href={siteConfig.social.linkedin}
-            className="button-link button-link-secondary"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LinkedIn
-          </Link>
+          </ButtonLink>
+          <ButtonLink href={`mailto:${siteConfig.email}`} variant="secondary">Email direct</ButtonLink>
         </div>
       </header>
 
-      <div className="contact-grid">
+      <div className="grid-2" style={{ alignItems: 'start' }}>
         <ContactForm />
-        <aside className="contact-sidebar" aria-label="Useful information">
-          <div className="card">
-            <h2>What happens next</h2>
-            <ol>
-              <li>I review your request and check whether it is in scope.</li>
-              <li>If we are aligned, I propose a call or follow-up questions.</li>
-              <li>After the call I share a proposal, estimate, and timeline.</li>
-            </ol>
-          </div>
-
-          <div className="card">
-            <h2>Not a fit if...</h2>
-            <ul>
-              <li>You only want the lowest price without clear goals.</li>
-              <li>You need immediate full-time availability.</li>
-              <li>There is no budget or project ownership.</li>
-            </ul>
-          </div>
+        <aside className="card stack stack-sm" aria-label="Useful information">
+          <h2>What happens next</h2>
+          <p className="meta">Got it. I’ll reply within 2 business days with scope and recommended next action.</p>
+          <ul>
+            <li>Quick review of your context.</li>
+            <li>Clarity on fit, timing, and approach.</li>
+            <li>Optional call if useful.</li>
+          </ul>
         </aside>
       </div>
-    </section>
+    </Container>
   );
 }

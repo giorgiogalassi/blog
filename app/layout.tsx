@@ -1,17 +1,23 @@
 import type { Metadata } from 'next';
-import { Roboto } from 'next/font/google';
-import type { CSSProperties, ReactNode } from 'react';
+import { Instrument_Serif, Inter } from 'next/font/google';
+import type { ReactNode } from 'react';
 
 import { Header } from '@/components/header';
 import { siteConfig } from '@/config/site';
-import { theme } from '@/config/theme';
 
 import './globals.css';
 
-const roboto = Roboto({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '700'],
-  display: 'swap'
+  display: 'swap',
+  variable: '--font-body'
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: '400',
+  display: 'swap',
+  variable: '--font-heading'
 });
 
 export const metadata: Metadata = {
@@ -33,24 +39,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={roboto.className}
-        style={
-          {
-            '--color-bg': theme.colors.background,
-            '--color-fg': theme.colors.foreground,
-            '--color-muted': theme.colors.muted,
-            '--color-border': theme.colors.border,
-            '--color-accent': theme.colors.accent,
-            '--color-accent-strong': theme.colors.accentStrong,
-            '--color-accent-soft': theme.colors.accentSoft,
-            '--space-section': theme.spacing.section,
-            '--space-container': theme.spacing.container,
-            '--radius-sm': theme.radius.sm,
-            '--radius-md': theme.radius.md
-          } as CSSProperties
-        }
-      >
+      <body className={`${inter.variable} ${instrumentSerif.variable}`}>
         <Header />
         <main>{children}</main>
       </body>

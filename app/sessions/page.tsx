@@ -1,120 +1,69 @@
 import type { Metadata } from 'next';
 
-import { getSpeakerContent, type SpeakerEvent } from '@/lib/sessionize';
+import { ButtonLink } from '@/components/ui/button';
+import { SessionCard } from '@/components/ui/cards';
+import { Container } from '@/components/ui/primitives';
+import { getSpeakerContent } from '@/lib/sessionize';
 
 export const metadata: Metadata = {
   title: 'Sessions',
-  description: 'Sessions and events generated from Sessionize.'
+  description: 'Upcoming and past sessions from conference speaking and leadership events.'
 };
 
 function formatDate(value: string | null) {
-  if (!value) {
-    return null;
-  }
-
-  return new Date(value).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-}
-
-function formatSessionDescription(description: string) {
-  return description
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\r\n|\r|\n/g, '<br />');
-}
-
-function getEventYear(event: SpeakerEvent) {
-  const referenceDate = event.startsAt ?? event.endsAt;
-
-  if (!referenceDate) {
-    return 'Unknown';
-  }
-
-  return String(new Date(referenceDate).getFullYear());
-}
-
-function groupEventsByYear(events: SpeakerEvent[]) {
-  const grouped = new Map<string, SpeakerEvent[]>();
-
-  for (const event of events) {
-    const year = getEventYear(event);
-    const current = grouped.get(year) ?? [];
-    current.push(event);
-    grouped.set(year, current);
-  }
-
-  return [...grouped.entries()].sort(([yearA], [yearB]) => yearB.localeCompare(yearA));
+  if (!value) return 'Date TBA';
+  return new Date(value).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 export default async function SessionsPage() {
   const { sessions, events } = await getSpeakerContent();
-  const groupedEvents = groupEventsByYear(events);
+  const currentYear = new Date().getFullYear();
+  const upcoming = events.filter((event) => {
+    const reference = event.startsAt ?? event.endsAt;
+    return reference ? new Date(reference) >= new Date() : false;
+  });
+  const past = sessions.filter((session) => (session.year ?? 0) < currentYear).slice(0, 6);
 
   return (
-    <section className="page container">
-      <h1>Speaking</h1>
-      <p className="lead">Sessions and events are synced automatically from Sessionize.</p>
+    <Container className="page">
+      <h1>Sessions</h1>
+      <p className="lead">Talks focused on architecture decisions, delivery quality, and frontend leadership.</p>
 
-      <details open className="card" style={{ marginTop: '1rem' }}>
-        <summary>
-          <strong>Sessions ({sessions.length})</strong>
-        </summary>
-
-        <div className="card-list">
-          {sessions.map((session) => (
-            <article key={session.id} className="card">
-              <h2>{session.title}</h2>
-              {session.language ? <p className="card-meta">Language: {session.language}</p> : null}
-              <p dangerouslySetInnerHTML={{ __html: formatSessionDescription(session.description) }} />
-              {session.url ? (
-                <a href={session.url} className="button-link" target="_blank" rel="noreferrer">
-                  View session
-                </a>
-              ) : null}
-            </article>
+      <section className="section">
+        <h2>Upcoming</h2>
+        <p className="lead">Invite one of these talks for your team or event.</p>
+        <p style={{ marginTop: '1rem' }}>
+          <ButtonLink href="/contact" variant="primary">Request this talk</ButtonLink>
+        </p>
+        <div className="grid-2" style={{ marginTop: '1rem' }}>
+          {upcoming.slice(0, 2).map((event) => (
+            <SessionCard
+              key={event.id}
+              title={event.name}
+              preview={event.location ?? 'Location TBA'}
+              meta={formatDate(event.startsAt)}
+              href={event.url}
+            />
           ))}
-
-          {sessions.length === 0 ? <p className="note">No sessions available.</p> : null}
         </div>
-      </details>
-
-      <section style={{ marginTop: '1rem' }}>
-        <h2>Events</h2>
-
-        {groupedEvents.map(([year, yearEvents], index) => (
-          <details key={year} open={index === 0} className="card" style={{ marginTop: '1rem' }}>
-            <summary>
-              <strong>
-                {year} ({yearEvents.length})
-              </strong>
-            </summary>
-
-            <div className="card-list">
-              {yearEvents.map((event) => (
-                <article key={event.id} className="card">
-                  <h3>{event.name}</h3>
-                  <p className="card-meta">
-                    {formatDate(event.startsAt)}
-                    {event.endsAt && event.endsAt !== event.startsAt ? ` - ${formatDate(event.endsAt)}` : ''}
-                  </p>
-                  {event.location ? <p>{event.location}</p> : null}
-                  {event.url ? (
-                    <a href={event.url} className="button-link" target="_blank" rel="noreferrer">
-                      Visit event
-                    </a>
-                  ) : null}
-                </article>
-              ))}
-            </div>
-          </details>
-        ))}
-
-        {events.length === 0 ? <p className="note">No events available.</p> : null}
       </section>
-    </section>
+
+      <section className="section">
+        <h2>Past sessions</h2>
+        <div className="grid-2" style={{ marginTop: '1rem' }}>
+          {past.map((session) => (
+            <SessionCard
+              key={session.id}
+              title={session.title}
+              preview={session.description.slice(0, 180)}
+              meta={session.year ? String(session.year) : 'Archive'}
+              tags={session.language ? [session.language] : []}
+              href={session.url}
+            />
+          ))}
+        </div>
+        {sessions.length > past.length ? <p className="note">Showing a curated set. Load more on the next iteration.</p> : null}
+      </section>
+    </Container>
   );
 }
