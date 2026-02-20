@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 
 import { getMediumArticles } from '@/lib/medium';
 
@@ -21,10 +22,11 @@ export default async function ArticlesPage() {
         {articles.map((article) => (
           <article key={article.id} className="card">
             {article.imageUrl ? (
-              // Keep a plain <img> to avoid Next.js remote image domain configuration overhead.
-              <img
+              <Image
                 src={article.imageUrl}
                 alt={article.title}
+                width={1200}
+                height={630}
                 className="card-image"
                 loading="lazy"
               />
@@ -33,7 +35,7 @@ export default async function ArticlesPage() {
             <h2>{article.title}</h2>
 
             <p className="card-meta">
-              Medium · {new Date(article.publishedAt).toLocaleDateString('en-US')}
+              Medium - {new Date(article.publishedAt).toLocaleDateString('en-US')}
             </p>
 
             {article.categories.length > 0 ? (
@@ -61,3 +63,4 @@ export default async function ArticlesPage() {
     </section>
   );
 }
+

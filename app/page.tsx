@@ -1,4 +1,5 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { ProofBar } from '@/components/proof-bar';
@@ -57,9 +58,11 @@ export default function HomePage() {
       <div className="home-layout">
         <aside className="profile-column">
           <div className="photo-slot" aria-label="Profile photo">
-            <img
+            <Image
               src="/images/profile/profile-big-2.jpeg"
               alt="Giorgio Galassi"
+              width={800}
+              height={1000}
               className="profile-photo"
             />
           </div>
@@ -71,23 +74,29 @@ export default function HomePage() {
               rel="noreferrer"
               aria-label="LinkedIn"
             >
-              <img
+              <Image
                 src="/images/socials/LI-In-Bug.png"
                 alt="LinkedIn"
+                width={32}
+                height={32}
                 className="social-icon-image"
               />
             </a>
             <a href={siteConfig.social.medium} target="_blank" rel="noreferrer" aria-label="Medium">
-              <img
+              <Image
                 src="/images/socials/Medium-Icon-White.svg"
                 alt="Medium"
+                width={32}
+                height={32}
                 className="social-icon-image"
               />
             </a>
             <a href={siteConfig.social.github} target="_blank" rel="noreferrer" aria-label="GitHub">
-              <img
+              <Image
                 src="/images/socials/GitHub_Invertocat_White_Clearspace.svg"
                 alt="GitHub"
+                width={32}
+                height={32}
                 className="social-icon-image"
               />
             </a>
