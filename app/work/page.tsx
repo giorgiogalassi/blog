@@ -39,7 +39,7 @@ export default function WorkPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLd(caseStudySchema) }}
       />
-      <header>
+      <header className="work-hero">
         <p className="hero-eyebrow">Selected Work</p>
         <h1>Projects where architecture decisions translated into measurable impact.</h1>
         <p className="lead">

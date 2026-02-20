@@ -600,25 +600,25 @@ details.card[open] > :not(summary) {
 
 .contact-page {
   display: grid;
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 .contact-hero {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: #fff;
-  padding: 1.25rem;
+  background: var(--color-surface-1);
+  padding: var(--space-6);
 }
 
 .contact-hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 1rem;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
 }
 
 .button-link-secondary {
-  background: #fff;
+  background: var(--color-surface-1);
   color: var(--color-fg);
   border: 1px solid var(--color-border);
 }
@@ -657,39 +657,43 @@ details.card[open] > :not(summary) {
 }
 
 .services-hero {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .service-sections {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-24);
 }
 
 .service-block p {
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-2);
+}
+
+.work-hero {
+  margin-bottom: var(--space-6);
 }
 
 .work-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1.2rem;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
 }
 
 .work-card h3 {
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--space-2);
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.8fr);
-  gap: 1.2rem;
+  gap: var(--space-6);
   align-items: start;
 }
 
 .contact-sidebar {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .contact-form-extended {
@@ -750,27 +754,35 @@ details.card[open] > :not(summary) {
 }
 
 .speaking-hero {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .speaking-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .speaking-badge {
   border: 1px solid #f2c6a3;
   background: #fff8ef;
   border-radius: 999px;
-  padding: 0.2rem 0.55rem;
+  padding: var(--space-1) var(--space-3);
   font-size: 0.82rem;
   font-weight: 600;
 }
 
 .speaking-invite {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
+}
+
+.timeline-section {
+  margin-top: var(--space-4);
+}
+
+.timeline-year {
+  margin-top: var(--space-4);
 }
 
 .contact-form-extended fieldset {
@@ -923,9 +935,14 @@ details.card[open] > :not(summary) {
 .feedback-year-form {
   display: flex;
   flex-wrap: wrap;
-  align-items: end;
-  gap: 0.65rem;
-  margin-top: 1.25rem;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.feedback-page {
+  display: grid;
+  gap: var(--space-4);
 }
 
 .feedback-year-form label {

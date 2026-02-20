@@ -141,10 +141,10 @@ export default async function SpeakingPage() {
         </ul>
       </section>
 
-      <section style={{ marginTop: '1rem' }}>
+      <section className="timeline-section">
         <h2>Event timeline</h2>
         {groupedEvents.map(([year, yearEvents], index) => (
-          <details key={year} open={index === 0} className="card" style={{ marginTop: '1rem' }}>
+          <details key={year} open={index === 0} className="card timeline-year">
             <summary>
               <strong>
                 {year} ({yearEvents.length})

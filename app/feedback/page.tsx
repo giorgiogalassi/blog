@@ -30,7 +30,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
   const years = [...new Set([fallbackYear, ...availableYears])].sort((a, b) => b - a);
 
   return (
-    <section className="page container">
+    <section className="page container feedback-page">
       <h1>Talk feedback</h1>
       <p className="lead">
         Thanks for attending. Pick the year and choose the talk you want to review.
