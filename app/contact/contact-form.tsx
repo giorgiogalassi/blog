@@ -1,10 +1,13 @@
-'use client';
+﻿'use client';
 
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+
+import { trackEvent } from '@/lib/analytics';
 
 const requestTypes = [
   { value: 'NewProject', label: 'New project / development' },
-  { value: 'Consulting', label: 'Consulting (1–2 hours) / review' },
+  { value: 'Consulting', label: 'Consulting (1-2 hours) / review' },
   { value: 'PerformanceAudit', label: 'Performance / Core Web Vitals' },
   { value: 'DesignSystem', label: 'Design system / component library' },
   { value: 'Mentoring', label: 'Mentoring / coaching' },
@@ -13,6 +16,7 @@ const requestTypes = [
 ] as const;
 
 type RequestType = (typeof requestTypes)[number]['value'];
+type WizardStep = 1 | 2 | 3 | 4;
 
 type FormState = {
   requestType: RequestType;
@@ -84,21 +88,80 @@ const initialState: FormState = {
   websiteField: ''
 };
 
-type SubmitStatus = { type: 'idle' } | { type: 'error'; message: string } | { type: 'success'; message: string };
+type SubmitStatus =
+  | { type: 'idle' }
+  | { type: 'error'; message: string }
+  | { type: 'success'; message: string };
 
 function requiresProjectSummary(requestType: RequestType) {
   return ['NewProject', 'PerformanceAudit', 'DesignSystem'].includes(requestType);
+}
+
+function getStepLabel(step: WizardStep) {
+  if (step === 1) {
+    return 'What do you need?';
+  }
+
+  if (step === 2) {
+    return 'Basic information';
+  }
+
+  if (step === 3) {
+    return 'Project details';
+  }
+
+  return 'Confirmation';
 }
 
 export function ContactForm() {
   const [form, setForm] = useState<FormState>(initialState);
   const [status, setStatus] = useState<SubmitStatus>({ type: 'idle' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState<WizardStep>(1);
+  const hasTrackedStart = useRef(false);
 
-  const projectSummaryRequired = useMemo(() => requiresProjectSummary(form.requestType), [form.requestType]);
+  const projectSummaryRequired = useMemo(
+    () => requiresProjectSummary(form.requestType),
+    [form.requestType]
+  );
 
   const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    if (!hasTrackedStart.current) {
+      trackEvent('contact_form_started', { step: step });
+      hasTrackedStart.current = true;
+    }
     setForm((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const goToNextStep = () => {
+    setStatus({ type: 'idle' });
+
+    if (step === 1) {
+      setStep(2);
+      return;
+    }
+
+    if (step === 2) {
+      if (!form.name.trim() || !form.email.trim()) {
+        setStatus({ type: 'error', message: 'Fill in name and email to continue.' });
+        return;
+      }
+
+      setStep(3);
+    }
+  };
+
+  const goToPreviousStep = () => {
+    if (step > 1 && step < 4) {
+      setStep((current) => (current - 1) as WizardStep);
+      setStatus({ type: 'idle' });
+    }
+  };
+
+  const resetWizard = () => {
+    setForm(initialState);
+    setStatus({ type: 'idle' });
+    setStep(1);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -111,12 +174,18 @@ export function ContactForm() {
     }
 
     if (projectSummaryRequired && !form.projectSummary.trim()) {
-      setStatus({ type: 'error', message: 'Add a project summary so I can estimate scope and timing.' });
+      setStatus({
+        type: 'error',
+        message: 'Add a project summary so I can estimate scope and timing.'
+      });
       return;
     }
 
     if (!form.privacyAccepted) {
-      setStatus({ type: 'error', message: 'You must accept the privacy policy to submit your request.' });
+      setStatus({
+        type: 'error',
+        message: 'You must accept the privacy policy to submit your request.'
+      });
       return;
     }
 
@@ -132,12 +201,16 @@ export function ContactForm() {
       const payload = (await response.json()) as { message?: string };
 
       if (!response.ok) {
-        setStatus({ type: 'error', message: payload.message ?? 'Submission failed. Please try again shortly.' });
+        setStatus({
+          type: 'error',
+          message: payload.message ?? 'Submission failed. Please try again shortly.'
+        });
         return;
       }
 
       setStatus({ type: 'success', message: payload.message ?? 'Request submitted successfully.' });
-      setForm(initialState);
+      trackEvent('contact_form_completed', { requestType: form.requestType });
+      setStep(4);
     } catch {
       setStatus({ type: 'error', message: 'Network error. Please try again in a few minutes.' });
     } finally {
@@ -145,99 +218,199 @@ export function ContactForm() {
     }
   };
 
+  if (step === 4) {
+    return (
+      <div className="card contact-confirmation" aria-live="polite">
+        <h2>Request sent</h2>
+        <p>
+          {status.type === 'success'
+            ? status.message
+            : "Thanks for reaching out. I'll reply within 2 business days."}
+        </p>
+        <div className="contact-hero-actions">
+          <Link
+            href="https://calendly.com/ged-galassi/30min"
+            className="button-link"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Book a call now
+          </Link>
+          <button
+            type="button"
+            className="button-link button-link-secondary button-reset"
+            onClick={resetWizard}
+          >
+            Send another request
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form className="contact-form contact-form-extended" onSubmit={handleSubmit} noValidate>
-      <fieldset>
-        <legend>Section A — Request type</legend>
-        <label htmlFor="requestType">Request type *</label>
-        <select
-          id="requestType"
-          name="requestType"
-          value={form.requestType}
-          onChange={(event) => updateField('requestType', event.target.value as RequestType)}
-          required
-        >
-          {requestTypes.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
-            </option>
-          ))}
-        </select>
-      </fieldset>
+      <div className="wizard-progress" aria-label="Contact form progress">
+        {[1, 2, 3, 4].map((index) => {
+          const wizardStep = index as WizardStep;
+          const stepClass = index <= step ? 'wizard-step is-active' : 'wizard-step';
 
-      <fieldset>
-        <legend>Section B — Contact details</legend>
-        <label htmlFor="name">Name *</label>
-        <input id="name" name="name" value={form.name} onChange={(event) => updateField('name', event.target.value)} required />
+          return (
+            <div key={index} className={stepClass}>
+              <span className="wizard-step-index">{index}</span>
+              <span className="wizard-step-label">{getStepLabel(wizardStep)}</span>
+            </div>
+          );
+        })}
+      </div>
 
-        <label htmlFor="email">Email *</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          value={form.email}
-          onChange={(event) => updateField('email', event.target.value)}
-          required
-        />
+      {step === 1 && (
+        <fieldset>
+          <legend>Step 1 - What do you need?</legend>
+          <label htmlFor="requestType">Request type *</label>
+          <select
+            id="requestType"
+            name="requestType"
+            value={form.requestType}
+            onChange={(event) => updateField('requestType', event.target.value as RequestType)}
+            required
+          >
+            {requestTypes.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </fieldset>
+      )}
 
-        <label htmlFor="company">Company</label>
-        <input id="company" name="company" value={form.company} onChange={(event) => updateField('company', event.target.value)} />
-
-        <label htmlFor="role">Role</label>
-        <input id="role" name="role" value={form.role} onChange={(event) => updateField('role', event.target.value)} />
-
-        <label htmlFor="website">Website</label>
-        <input id="website" name="website" type="url" value={form.website} onChange={(event) => updateField('website', event.target.value)} />
-      </fieldset>
-
-      {renderConditionalSection(form, updateField, projectSummaryRequired)}
-
-      <fieldset>
-        <legend>Materials and privacy</legend>
-
-        <label htmlFor="materialsLink">Link to materials (Drive, Notion, Loom...)</label>
-        <input
-          id="materialsLink"
-          name="materialsLink"
-          type="url"
-          value={form.materialsLink}
-          onChange={(event) => updateField('materialsLink', event.target.value)}
-        />
-
-        <label className="checkbox-row" htmlFor="privacyAccepted">
+      {step === 2 && (
+        <fieldset>
+          <legend>Step 2 - Basic information</legend>
+          <label htmlFor="name">Name *</label>
           <input
-            id="privacyAccepted"
-            name="privacyAccepted"
-            type="checkbox"
-            checked={form.privacyAccepted}
-            onChange={(event) => updateField('privacyAccepted', event.target.checked)}
+            id="name"
+            name="name"
+            value={form.name}
+            onChange={(event) => updateField('name', event.target.value)}
             required
           />
-          I've read the <a href="/privacy">privacy policy</a> *
-        </label>
 
+          <label htmlFor="email">Email *</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={(event) => updateField('email', event.target.value)}
+            required
+          />
 
-        <input
-          type="text"
-          tabIndex={-1}
-          autoComplete="off"
-          className="contact-honeypot"
-          value={form.websiteField}
-          onChange={(event) => updateField('websiteField', event.target.value)}
-          aria-hidden="true"
-        />
-      </fieldset>
+          <label htmlFor="company">Company</label>
+          <input
+            id="company"
+            name="company"
+            value={form.company}
+            onChange={(event) => updateField('company', event.target.value)}
+          />
+
+          <label htmlFor="role">Role</label>
+          <input
+            id="role"
+            name="role"
+            value={form.role}
+            onChange={(event) => updateField('role', event.target.value)}
+          />
+        </fieldset>
+      )}
+
+      {step === 3 && (
+        <>
+          <fieldset>
+            <legend>Step 3 - Optional context</legend>
+            <label htmlFor="website">Website</label>
+            <input
+              id="website"
+              name="website"
+              type="url"
+              value={form.website}
+              onChange={(event) => updateField('website', event.target.value)}
+            />
+          </fieldset>
+
+          {renderConditionalSection(form, updateField, projectSummaryRequired)}
+
+          <fieldset>
+            <legend>Step 3 - Materials and privacy</legend>
+
+            <label htmlFor="materialsLink">Link to materials (Drive, Notion, Loom...)</label>
+            <input
+              id="materialsLink"
+              name="materialsLink"
+              type="url"
+              value={form.materialsLink}
+              onChange={(event) => updateField('materialsLink', event.target.value)}
+            />
+
+            <label className="checkbox-row" htmlFor="privacyAccepted">
+              <input
+                id="privacyAccepted"
+                name="privacyAccepted"
+                type="checkbox"
+                checked={form.privacyAccepted}
+                onChange={(event) => updateField('privacyAccepted', event.target.checked)}
+                required
+              />
+              I&apos;ve read the <a href="/privacy">privacy policy</a> *
+            </label>
+
+            <input
+              type="text"
+              tabIndex={-1}
+              autoComplete="off"
+              className="contact-honeypot"
+              value={form.websiteField}
+              onChange={(event) => updateField('websiteField', event.target.value)}
+              aria-hidden="true"
+            />
+          </fieldset>
+        </>
+      )}
 
       {status.type !== 'idle' && (
-        <p className={status.type === 'error' ? 'form-feedback form-feedback-error' : 'form-feedback form-feedback-success'}>
+        <p
+          className={
+            status.type === 'error'
+              ? 'form-feedback form-feedback-error'
+              : 'form-feedback form-feedback-success'
+          }
+        >
           {status.message}
         </p>
       )}
 
-      <button type="submit" className="button-link button-reset" disabled={isSubmitting}>
-        {isSubmitting ? 'Sending...' : 'Send request'}
-      </button>
+      <div className="wizard-actions">
+        {step > 1 && (
+          <button
+            type="button"
+            className="button-link button-link-secondary button-reset"
+            onClick={goToPreviousStep}
+          >
+            Back
+          </button>
+        )}
+
+        {step < 3 ? (
+          <button type="button" className="button-link button-reset" onClick={goToNextStep}>
+            Continue
+          </button>
+        ) : (
+          <button type="submit" className="button-link button-reset" disabled={isSubmitting}>
+            {isSubmitting ? 'Sending...' : 'Send request'}
+          </button>
+        )}
+      </div>
     </form>
   );
 }
@@ -250,12 +423,19 @@ function renderConditionalSection(
   if (form.requestType === 'Consulting') {
     return (
       <fieldset>
-        <legend>Section C — Consulting details</legend>
+        <legend>Section - Consulting details</legend>
         <label htmlFor="topic">What do you need help with? *</label>
-        <textarea id="topic" rows={4} value={form.topic} onChange={(event) => updateField('topic', event.target.value)} required />
+        <textarea
+          id="topic"
+          rows={4}
+          value={form.topic}
+          onChange={(event) => updateField('topic', event.target.value)}
+          required
+        />
 
-        <p className="field-caption">For timing and duration, please book directly through the Calendly link above.</p>
-
+        <p className="field-caption">
+          For timing and duration, please book directly through the Calendly link above.
+        </p>
       </fieldset>
     );
   }
@@ -263,11 +443,20 @@ function renderConditionalSection(
   if (form.requestType === 'PerformanceAudit') {
     return (
       <fieldset>
-        <legend>Section C — Performance audit</legend>
-        <CommonProjectFields form={form} updateField={updateField} projectSummaryRequired={projectSummaryRequired} forceProjectLinkRequired />
+        <legend>Section - Performance audit</legend>
+        <CommonProjectFields
+          form={form}
+          updateField={updateField}
+          projectSummaryRequired={projectSummaryRequired}
+          forceProjectLinkRequired
+        />
 
         <label htmlFor="stack">Stack (e.g. Next.js, Astro...)</label>
-        <input id="stack" value={form.stack} onChange={(event) => updateField('stack', event.target.value)} />
+        <input
+          id="stack"
+          value={form.stack}
+          onChange={(event) => updateField('stack', event.target.value)}
+        />
 
         <label>Pain points</label>
         <div className="checkbox-group">
@@ -311,8 +500,13 @@ function renderConditionalSection(
   if (form.requestType === 'DesignSystem') {
     return (
       <fieldset>
-        <legend>Section C — Design system</legend>
-        <CommonProjectFields form={form} updateField={updateField} projectSummaryRequired={projectSummaryRequired} hideTimeline />
+        <legend>Section - Design system</legend>
+        <CommonProjectFields
+          form={form}
+          updateField={updateField}
+          projectSummaryRequired={projectSummaryRequired}
+          hideTimeline
+        />
 
         <label>Current status</label>
         <div className="radio-group">
@@ -345,13 +539,21 @@ function renderConditionalSection(
         </div>
 
         <label htmlFor="tech">Technology</label>
-        <input id="tech" value={form.tech} onChange={(event) => updateField('tech', event.target.value)} />
+        <input
+          id="tech"
+          value={form.tech}
+          onChange={(event) => updateField('tech', event.target.value)}
+        />
 
         <label htmlFor="componentsCount">Number of components</label>
-        <select id="componentsCount" value={form.componentsCount} onChange={(event) => updateField('componentsCount', event.target.value)}>
+        <select
+          id="componentsCount"
+          value={form.componentsCount}
+          onChange={(event) => updateField('componentsCount', event.target.value)}
+        >
           <option value="">Select...</option>
           <option value="<10">&lt;10</option>
-          <option value="10-30">10–30</option>
+          <option value="10-30">10-30</option>
           <option value="30+">30+</option>
         </select>
       </fieldset>
@@ -361,9 +563,13 @@ function renderConditionalSection(
   if (form.requestType === 'Mentoring') {
     return (
       <fieldset>
-        <legend>Section C — Mentoring</legend>
+        <legend>Section - Mentoring</legend>
         <label htmlFor="level">Level</label>
-        <select id="level" value={form.level} onChange={(event) => updateField('level', event.target.value)}>
+        <select
+          id="level"
+          value={form.level}
+          onChange={(event) => updateField('level', event.target.value)}
+        >
           <option value="">Select...</option>
           <option value="Junior">Junior</option>
           <option value="Mid">Mid</option>
@@ -371,7 +577,13 @@ function renderConditionalSection(
         </select>
 
         <label htmlFor="goals">Goals *</label>
-        <textarea id="goals" rows={5} value={form.goals} onChange={(event) => updateField('goals', event.target.value)} required />
+        <textarea
+          id="goals"
+          rows={5}
+          value={form.goals}
+          onChange={(event) => updateField('goals', event.target.value)}
+          required
+        />
 
         <label>Frequency</label>
         <div className="radio-group">
@@ -394,30 +606,54 @@ function renderConditionalSection(
   if (form.requestType === 'TalkEvent') {
     return (
       <fieldset>
-        <legend>Section C — Talk / Event</legend>
+        <legend>Section - Talk / Event</legend>
         <label htmlFor="eventName">Event name *</label>
-        <input id="eventName" value={form.eventName} onChange={(event) => updateField('eventName', event.target.value)} required />
+        <input
+          id="eventName"
+          value={form.eventName}
+          onChange={(event) => updateField('eventName', event.target.value)}
+          required
+        />
 
         <label htmlFor="eventDate">Date *</label>
-        <input id="eventDate" value={form.eventDate} onChange={(event) => updateField('eventDate', event.target.value)} required />
+        <input
+          id="eventDate"
+          value={form.eventDate}
+          onChange={(event) => updateField('eventDate', event.target.value)}
+          required
+        />
 
         <label htmlFor="location">Location</label>
-        <input id="location" value={form.location} onChange={(event) => updateField('location', event.target.value)} />
+        <input
+          id="location"
+          value={form.location}
+          onChange={(event) => updateField('location', event.target.value)}
+        />
 
         <label htmlFor="audienceSize">Audience size</label>
-        <select id="audienceSize" value={form.audienceSize} onChange={(event) => updateField('audienceSize', event.target.value)}>
+        <select
+          id="audienceSize"
+          value={form.audienceSize}
+          onChange={(event) => updateField('audienceSize', event.target.value)}
+        >
           <option value="">Select...</option>
           <option value="<50">&lt;50</option>
-          <option value="50-200">50–200</option>
+          <option value="50-200">50-200</option>
           <option value="200+">200+</option>
         </select>
 
         <label htmlFor="topic">Topic *</label>
-        <textarea id="topic" rows={4} value={form.topic} onChange={(event) => updateField('topic', event.target.value)} required />
+        <textarea
+          id="topic"
+          rows={4}
+          value={form.topic}
+          onChange={(event) => updateField('topic', event.target.value)}
+          required
+        />
 
         <label>Fee budget</label>
         <div className="radio-group">
-          {['<1k', '1–3k', '3k+', 'To be defined'].map((item) => (
+          {['<1k', '1-3k', '3k+', 'To be defined'].map((item) => (
             <label key={item}>
               <input
                 type="radio"
@@ -436,17 +672,27 @@ function renderConditionalSection(
   if (form.requestType === 'Other') {
     return (
       <fieldset>
-        <legend>Section C — Other</legend>
+        <legend>Section - Other</legend>
         <label htmlFor="message">Message *</label>
-        <textarea id="message" rows={6} value={form.message} onChange={(event) => updateField('message', event.target.value)} required />
+        <textarea
+          id="message"
+          rows={6}
+          value={form.message}
+          onChange={(event) => updateField('message', event.target.value)}
+          required
+        />
       </fieldset>
     );
   }
 
   return (
     <fieldset>
-      <legend>Section C — Project info</legend>
-      <CommonProjectFields form={form} updateField={updateField} projectSummaryRequired={projectSummaryRequired} />
+      <legend>Section - Project info</legend>
+      <CommonProjectFields
+        form={form}
+        updateField={updateField}
+        projectSummaryRequired={projectSummaryRequired}
+      />
     </fieldset>
   );
 }
@@ -466,9 +712,7 @@ function CommonProjectFields({
 }) {
   return (
     <>
-      <label htmlFor="projectSummary">
-        Project summary {projectSummaryRequired ? '*' : ''}
-      </label>
+      <label htmlFor="projectSummary">Project summary {projectSummaryRequired ? '*' : ''}</label>
       <textarea
         id="projectSummary"
         rows={5}
@@ -483,7 +727,9 @@ function CommonProjectFields({
 
       <hr className="field-divider" />
 
-      <label htmlFor="projectLink">Product/site link {forceProjectLinkRequired ? '*' : '(if available)'}</label>
+      <label htmlFor="projectLink">
+        Product/site link {forceProjectLinkRequired ? '*' : '(if available)'}
+      </label>
       <input
         id="projectLink"
         type="url"
@@ -495,11 +741,15 @@ function CommonProjectFields({
       {!hideTimeline && (
         <>
           <label htmlFor="deadline">Timeline</label>
-          <select id="deadline" value={form.deadline} onChange={(event) => updateField('deadline', event.target.value)}>
+          <select
+            id="deadline"
+            value={form.deadline}
+            onChange={(event) => updateField('deadline', event.target.value)}
+          >
             <option value="">Select...</option>
-            <option value="ASAP (1–2 weeks)">ASAP (1–2 weeks)</option>
+            <option value="ASAP (1-2 weeks)">ASAP (1-2 weeks)</option>
             <option value="Within 1 month">Within 1 month</option>
-            <option value="1–3 months">1–3 months</option>
+            <option value="1-3 months">1-3 months</option>
             <option value="3+ months">3+ months</option>
             <option value="Flexible / to be defined">Flexible / to be defined</option>
           </select>
@@ -507,19 +757,24 @@ function CommonProjectFields({
       )}
 
       <label>Budget range</label>
-      <p className="field-caption">This helps me quickly understand whether I can help and avoid back-and-forth with no context.</p>
+      <p className="field-caption">
+        This helps me quickly understand whether I can help and avoid back-and-forth with no
+        context.
+      </p>
       <div className="radio-group">
-        {['< 1k', '1–3k', '3–7k', '7–15k', '15k+', "I'm not sure / I want an estimate"].map((item) => (
-          <label key={item}>
-            <input
-              type="radio"
-              name="budgetRange"
-              checked={form.budgetRange === item}
-              onChange={() => updateField('budgetRange', item)}
-            />
-            {item}
-          </label>
-        ))}
+        {['< 1k', '1-3k', '3-7k', '7-15k', '15k+', "I'm not sure / I want an estimate"].map(
+          (item) => (
+            <label key={item}>
+              <input
+                type="radio"
+                name="budgetRange"
+                checked={form.budgetRange === item}
+                onChange={() => updateField('budgetRange', item)}
+              />
+              {item}
+            </label>
+          )
+        )}
       </div>
 
       <hr className="field-divider" />
@@ -540,11 +795,15 @@ function CommonProjectFields({
       </div>
 
       <label htmlFor="startPreference">When would you like to start?</label>
-      <select id="startPreference" value={form.startPreference} onChange={(event) => updateField('startPreference', event.target.value)}>
+      <select
+        id="startPreference"
+        value={form.startPreference}
+        onChange={(event) => updateField('startPreference', event.target.value)}
+      >
         <option value="">Select...</option>
         <option value="Immediately">Immediately</option>
-        <option value="In 2–4 weeks">In 2–4 weeks</option>
-        <option value="In 1–2 months">In 1–2 months</option>
+        <option value="In 2-4 weeks">In 2-4 weeks</option>
+        <option value="In 1-2 months">In 1-2 months</option>
         <option value="To be defined">To be defined</option>
       </select>
     </>

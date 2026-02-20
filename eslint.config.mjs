@@ -1,5 +1,14 @@
-// Next.js 16+ expects the explicit .js entrypoint for this flat-config import
-// on some environments (notably Windows), otherwise module resolution can fail.
-import nextVitals from 'eslint-config-next/core-web-vitals.js';
+import { FlatCompat } from '@eslint/eslintrc';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-export default [...nextVitals];
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname
+});
+
+const config = [...compat.extends('next/core-web-vitals')];
+
+export default config;

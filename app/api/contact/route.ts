@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { siteConfig } from '@/config/site';
+import { createInMemoryRateLimiter } from '@/lib/api/rate-limit';
+import { hasHoneypotValue, isValidEmail } from '@/lib/api/validation';
 
 type ContactPayload = {
   requestType?: string;
@@ -37,15 +39,17 @@ type ContactPayload = {
   websiteField?: string;
 };
 
-const rateLimitStore = new Map<string, { attempts: number; resetAt: number }>();
-const RATE_LIMIT = { maxAttempts: 5, windowMs: 10 * 60 * 1000 };
-
+const isRateLimited = createInMemoryRateLimiter({ maxAttempts: 5, windowMs: 10 * 60 * 1000 });
 const summaryRequiredTypes = new Set(['NewProject', 'PerformanceAudit', 'DesignSystem']);
 
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
   const ip = getClientIp(request);
 
   if (isRateLimited(ip)) {
+    console.warn({ route: '/api/contact', event: 'rate_limited', requestId, timestamp });
+
     return NextResponse.json(
       { message: 'You sent too many requests in a short time. Please try again in a few minutes.' },
       { status: 429 }
@@ -54,35 +58,39 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as ContactPayload;
 
-  if (body.websiteField) {
+  if (hasHoneypotValue(body.websiteField)) {
+    console.info({ route: '/api/contact', event: 'honeypot_triggered', requestId, timestamp });
     return NextResponse.json({ message: 'Request received.' }, { status: 200 });
   }
 
   const validation = validatePayload(body);
   if (!validation.ok) {
+    console.warn({ route: '/api/contact', event: 'validation_failed', requestId, timestamp });
     return NextResponse.json({ message: validation.message }, { status: 400 });
   }
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const timestamp = new Date().toISOString();
-
   const ownerMessage = formatOwnerMessage(body, { timezone, timestamp });
 
   await Promise.all([
     sendEmail({
       to: process.env.CONTACT_TO_EMAIL ?? siteConfig.email,
-      subject: `[Contact] ${body.requestType} — ${body.name}`,
+      subject: `[Contact] ${body.requestType} - ${body.name}`,
       text: ownerMessage,
       replyTo: body.email
     }),
     sendEmail({
       to: body.email ?? '',
-      subject: 'Request received ✅',
+      subject: 'Request received',
       text: `Hi ${body.name},\n\nI received your request and I'll reply within 2 business days with concrete next steps.\n\nTalk soon,\nGiorgio`
     })
   ]);
 
-  return NextResponse.json({ message: "Request received! I'll reply within 2 business days." }, { status: 200 });
+  console.info({ route: '/api/contact', event: 'request_accepted', requestId, timestamp });
+  return NextResponse.json(
+    { message: "Request received! I'll reply within 2 business days." },
+    { status: 200 }
+  );
 }
 
 function validatePayload(body: ContactPayload): { ok: true } | { ok: false; message: string } {
@@ -94,7 +102,7 @@ function validatePayload(body: ContactPayload): { ok: true } | { ok: false; mess
     return { ok: false, message: 'Name and email are required.' };
   }
 
-  if (!/^\S+@\S+\.\S+$/.test(body.email)) {
+  if (!isValidEmail(body.email)) {
     return { ok: false, message: 'Enter a valid email address.' };
   }
 
@@ -118,7 +126,10 @@ function validatePayload(body: ContactPayload): { ok: true } | { ok: false; mess
     return { ok: false, message: 'Describe your mentoring goals.' };
   }
 
-  if (body.requestType === 'TalkEvent' && (!body.eventName?.trim() || !body.eventDate?.trim() || !body.topic?.trim())) {
+  if (
+    body.requestType === 'TalkEvent' &&
+    (!body.eventName?.trim() || !body.eventDate?.trim() || !body.topic?.trim())
+  ) {
     return { ok: false, message: 'Fill in event name, date, and topic.' };
   }
 
@@ -129,7 +140,10 @@ function validatePayload(body: ContactPayload): { ok: true } | { ok: false; mess
   return { ok: true };
 }
 
-function formatOwnerMessage(body: ContactPayload, context: { timezone: string; timestamp: string }) {
+function formatOwnerMessage(
+  body: ContactPayload,
+  context: { timezone: string; timestamp: string }
+) {
   const lines = [
     `Request type: ${body.requestType ?? '-'}`,
     `Name/Email/Company: ${body.name ?? '-'} / ${body.email ?? '-'} / ${body.company ?? '-'}`,
@@ -199,18 +213,4 @@ async function sendEmail({
 function getClientIp(request: NextRequest) {
   const forwarded = request.headers.get('x-forwarded-for');
   return forwarded?.split(',')[0]?.trim() || 'unknown';
-}
-
-function isRateLimited(ip: string) {
-  const now = Date.now();
-  const entry = rateLimitStore.get(ip);
-
-  if (!entry || entry.resetAt < now) {
-    rateLimitStore.set(ip, { attempts: 1, resetAt: now + RATE_LIMIT.windowMs });
-    return false;
-  }
-
-  entry.attempts += 1;
-  rateLimitStore.set(ip, entry);
-  return entry.attempts > RATE_LIMIT.maxAttempts;
 }

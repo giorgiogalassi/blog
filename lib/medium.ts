@@ -32,7 +32,7 @@ function toSlug(url: string) {
 }
 
 function extractImageFromDescription(description: string) {
-  // Cerchiamo prima il tag <figure> e, al suo interno, il primo <img src="...">.
+  // Search <figure> first and extract the first nested image.
   const figureMatch = description.match(/<figure\b[^>]*>([\s\S]*?)<\/figure>/i);
   const figureHtml = figureMatch?.[1] ?? '';
   const imageMatch = figureHtml.match(/<img\b[^>]*src=["']([^"']+)["'][^>]*>/i);
@@ -52,21 +52,24 @@ function mapItemToMediumArticle(item: Rss2JsonItem): MediumArticle {
 }
 
 export async function getMediumArticles(): Promise<MediumArticle[]> {
-  // Isoliamo qui la chiamata HTTP, così in futuro possiamo cambiare provider/API senza toccare la UI.
-  const response = await fetch(MEDIUM_RSS2JSON_URL, {
-    // Manteniamo la lista sempre aggiornata ma con cache controllata lato server.
-    next: { revalidate: 1800 }
-  });
+  try {
+    const response = await fetch(MEDIUM_RSS2JSON_URL, {
+      next: { revalidate: 1800 },
+      signal: AbortSignal.timeout(8000)
+    });
 
-  if (!response.ok) {
-    throw new Error(`Unable to load Medium feed: HTTP ${response.status}`);
-  }
+    if (!response.ok) {
+      return [];
+    }
 
-  const payload = (await response.json()) as Rss2JsonResponse;
+    const payload = (await response.json()) as Rss2JsonResponse;
 
-  if (payload.status !== 'ok' || !payload.items) {
+    if (payload.status !== 'ok' || !Array.isArray(payload.items)) {
+      return [];
+    }
+
+    return payload.items.map(mapItemToMediumArticle);
+  } catch {
     return [];
   }
-
-  return payload.items.map(mapItemToMediumArticle);
 }

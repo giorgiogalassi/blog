@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Header } from '@/components/header';
 import { siteConfig } from '@/config/site';
 import { theme } from '@/config/theme';
+import { getPersonSchema, getProfessionalServiceSchema, toJsonLd } from '@/lib/seo';
 
 import './globals.css';
 
@@ -31,6 +32,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const rootSchemas = [getPersonSchema(), getProfessionalServiceSchema()];
+
   return (
     <html lang="en">
       <body
@@ -51,6 +54,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           } as CSSProperties
         }
       >
+        {rootSchemas.map((schema, index) => (
+          <script
+            key={`root-schema-${index}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: toJsonLd(schema) }}
+          />
+        ))}
         <Header />
         <main>{children}</main>
       </body>

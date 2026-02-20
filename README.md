@@ -1,6 +1,6 @@
 # Personal Blog (Next.js)
 
-A minimal personal blog with orange accents, built with Next.js App Router and data-driven external article redirects.
+A minimal personal blog with orange accents, built with Next.js App Router and dynamic external data integrations.
 
 ## Stack and Versions
 
@@ -35,21 +35,37 @@ npm run dev
 
 ## Routes
 
-- `/` home page
-- `/about` profile with photo slot and social links
-- `/articles` external article list
-- `/go/[slug]` redirect endpoint for external resources
-- `/feedback` page to collect talk feedback with year-based Sessionize sessions
+- `/` profile/about page with social links
+- `/articles` external article list sourced from Medium RSS
+- `/sessions` sessions and events sourced from Sessionize
+- `/feedback` form to collect talk feedback with year-based Sessionize sessions
 - `/contact` collaboration form for freelance inquiries
 
-## External Article Redirects
+## Data Sources
 
-External articles are defined in `data/articles.ts`.
+- Medium articles are fetched in `lib/medium.ts`.
+- Session and speaking data are fetched in `lib/sessionize.ts`.
+- Contact and feedback submissions are handled by API routes in `app/api/`.
 
-- `/articles` reads `externalArticles` to render the list.
-- `/go/[slug]` reads `articleRedirectMap` and redirects to the external URL.
+## Source Of Truth
 
-To add a new article, add a new item to `externalArticles`.
+- Route structure and page ownership live in `app/`.
+- External service integration logic lives in `lib/`.
+- Shared site-level settings live in `config/`.
+
+## Environment Variables
+
+Create a local `.env.local` from `.env.example`:
+
+```bash
+cp .env.example .env.local
+```
+
+- `RESEND_API_KEY`: required to send emails from `/api/contact`.
+- `CONTACT_FROM_EMAIL`: sender address used by Resend.
+- `CONTACT_TO_EMAIL`: optional recipient override for contact requests.
+
+If email environment variables are missing, contact route email sending is skipped safely in local/dev.
 
 ## Future Extensions (not implemented yet)
 

@@ -1,15 +1,59 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
+import Link from 'next/link';
 
+import { ProofBar } from '@/components/proof-bar';
+import { TrackedLink } from '@/components/tracked-link';
 import { siteConfig } from '@/config/site';
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'Summary of Giorgio Galassi profile, technical focus, and core frontend skills.'
+  title: 'Senior Angular Consultant',
+  description:
+    'I help product teams build scalable Angular applications with solid architecture and measurable performance improvements.',
+  openGraph: {
+    title: 'Senior Angular Consultant',
+    description:
+      'Architecture, performance optimization, and design systems for teams that need reliability at scale.',
+    url: '/',
+    type: 'website'
+  }
 };
 
 export default function HomePage() {
   return (
     <section className="page container">
+      <header className="home-hero card">
+        <p className="hero-eyebrow">Senior Angular Consultant and Speaker</p>
+        <h1>
+          I help product teams build scalable Angular applications without performance regressions.
+        </h1>
+        <p className="lead">
+          Architecture, performance optimization, and design systems for teams that need reliability
+          at scale.
+        </p>
+        <div className="hero-cta-row">
+          <TrackedLink
+            href="https://calendly.com/ged-galassi/30min"
+            className="button-link"
+            target="_blank"
+            rel="noreferrer"
+            eventName="home_cta_book_call_click"
+            payload={{ source: 'home_hero' }}
+          >
+            Book a call
+          </TrackedLink>
+          <TrackedLink
+            href="/work"
+            className="button-link button-link-secondary"
+            eventName="home_cta_work_click"
+            payload={{ source: 'home_hero' }}
+          >
+            See selected work
+          </TrackedLink>
+        </div>
+      </header>
+
+      <ProofBar />
+
       <div className="home-layout">
         <aside className="profile-column">
           <div className="photo-slot" aria-label="Profile photo">
@@ -21,8 +65,17 @@ export default function HomePage() {
           </div>
 
           <div className="social-icons" aria-label="Social links">
-            <a href={siteConfig.social.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-              <img src="/images/socials/LI-In-Bug.png" alt="LinkedIn" className="social-icon-image" />
+            <a
+              href={siteConfig.social.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="LinkedIn"
+            >
+              <img
+                src="/images/socials/LI-In-Bug.png"
+                alt="LinkedIn"
+                className="social-icon-image"
+              />
             </a>
             <a href={siteConfig.social.medium} target="_blank" rel="noreferrer" aria-label="Medium">
               <img
@@ -42,56 +95,43 @@ export default function HomePage() {
         </aside>
 
         <div className="content-column">
-          <h1>About</h1>
-          <p className="lead">
-            Senior Frontend Software Engineer with around 10 years of experience building and
-            evolving large-scale web platforms. I focus on frontend architecture, maintainability,
-            performance, and collaboration across product and engineering teams.
-          </p>
-
           <article className="card">
-            <h2>Professional snapshot</h2>
+            <h2>What I help teams achieve</h2>
             <ul className="meta-list">
-              <li>
-                <strong>Role:</strong> Senior Software Engineer (Frontend)
-              </li>
-              <li>
-                <strong>Location:</strong> Italy · Remote-friendly (EU timezone)
-              </li>
-              <li>
-                <strong>Main strengths:</strong> Architecture, state management boundaries, scalable
-                UI systems, technical leadership
-              </li>
+              <li>Reduce delivery risk in large Angular codebases.</li>
+              <li>Improve performance with measurable Core Web Vitals impact.</li>
+              <li>Set architecture standards that scale across squads.</li>
+              <li>Increase team execution confidence through coaching and structure.</li>
             </ul>
           </article>
 
           <div className="card-list">
             <article className="card">
-              <h2>Core skills</h2>
+              <h2>Core expertise</h2>
               <ul className="meta-list">
                 <li>
-                  <strong>Languages:</strong> TypeScript, JavaScript
+                  <strong>Frontend architecture:</strong> modular boundaries, shared contracts,
+                  sustainable scaling
                 </li>
                 <li>
-                  <strong>Frontend:</strong> Angular, RxJS, Web Components
+                  <strong>Performance:</strong> rendering analysis, bundle strategy, Core Web Vitals
                 </li>
                 <li>
-                  <strong>Architecture:</strong> component-based systems, modular frontend design,
-                  state management patterns
+                  <strong>Systems:</strong> design systems, component APIs, UI consistency at scale
                 </li>
                 <li>
-                  <strong>Tooling:</strong> Nx, Storybook, Jasmine, Karma, Git-based workflows
+                  <strong>Delivery:</strong> technical leadership, mentoring, cross-team alignment
                 </li>
               </ul>
             </article>
 
             <article className="card">
-              <h2>How I contribute</h2>
+              <h2>How I usually engage</h2>
               <ul className="meta-list">
-                <li>Design and evolve frontend architecture for multi-team products.</li>
-                <li>Define standards and shared patterns to reduce coupling.</li>
-                <li>Support teams with technical mentoring and architecture reviews.</li>
-                <li>Bridge product needs with sustainable engineering decisions.</li>
+                <li>Architecture and scalability consulting for product teams.</li>
+                <li>Performance audits with practical remediation roadmap.</li>
+                <li>Design system engineering and adoption support.</li>
+                <li>Mentoring programs for engineers and technical leads.</li>
               </ul>
             </article>
           </div>

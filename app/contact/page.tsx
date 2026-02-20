@@ -1,20 +1,29 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { PageViewTracker } from '@/components/page-view-tracker';
 import { siteConfig } from '@/config/site';
 
 import { ContactForm } from './contact-form';
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: "Tell me about your project: I'll reply with concrete next steps and a realistic estimate."
+  description:
+    "Tell me about your project: I'll reply with concrete next steps and a realistic estimate.",
+  openGraph: {
+    title: 'Contact',
+    description: 'Share your project details and get concrete next steps and estimate direction.',
+    url: '/contact',
+    type: 'website'
+  }
 };
 
 export default function ContactPage() {
   return (
     <section className="page container contact-page">
+      <PageViewTracker event="contact_page_view" payload={{ page: '/contact' }} />
       <header className="contact-hero">
-        <h1>Let's talk about your project</h1>
+        <h1>Let&apos;s talk about your project</h1>
         <p className="lead">
           I reply within 2 business days. If your request is urgent, book a paid call directly.
         </p>

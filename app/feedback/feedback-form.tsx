@@ -56,7 +56,10 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
     event.preventDefault();
 
     if (!form.sessionId || !form.feedback.trim()) {
-      setStatus({ type: 'error', message: 'Please fill in all required fields before submitting.' });
+      setStatus({
+        type: 'error',
+        message: 'Please fill in all required fields before submitting.'
+      });
       return;
     }
 
@@ -79,12 +82,16 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
       if (!response.ok) {
         setStatus({
           type: 'error',
-          message: payload.message ?? 'Unable to submit right now. Please try again in a few minutes.'
+          message:
+            payload.message ?? 'Unable to submit right now. Please try again in a few minutes.'
         });
         return;
       }
 
-      setStatus({ type: 'success', message: payload.message ?? 'Thanks! Your feedback was submitted.' });
+      setStatus({
+        type: 'success',
+        message: payload.message ?? 'Thanks! Your feedback was submitted.'
+      });
       setForm(initialState);
     } catch {
       setStatus({ type: 'error', message: 'Network error. Please try again in a few minutes.' });
@@ -99,7 +106,12 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
         <legend>Your feedback</legend>
 
         <label htmlFor="feedback-name">Name (optional)</label>
-        <input id="feedback-name" name="name" value={form.name} onChange={(event) => updateField('name', event.target.value)} />
+        <input
+          id="feedback-name"
+          name="name"
+          value={form.name}
+          onChange={(event) => updateField('name', event.target.value)}
+        />
 
         <label htmlFor="feedback-email">Email (optional)</label>
         <input
@@ -165,12 +177,22 @@ export function FeedbackForm({ year, speeches }: FeedbackFormProps) {
       </fieldset>
 
       {status.type !== 'idle' && (
-        <p className={status.type === 'error' ? 'form-feedback form-feedback-error' : 'form-feedback form-feedback-success'}>
+        <p
+          className={
+            status.type === 'error'
+              ? 'form-feedback form-feedback-error'
+              : 'form-feedback form-feedback-success'
+          }
+        >
           {status.message}
         </p>
       )}
 
-      <button type="submit" className="button-link button-reset" disabled={isSubmitting || speeches.length === 0}>
+      <button
+        type="submit"
+        className="button-link button-reset"
+        disabled={isSubmitting || speeches.length === 0}
+      >
         {isSubmitting ? 'Submitting...' : 'Submit feedback'}
       </button>
     </form>

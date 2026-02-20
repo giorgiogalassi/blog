@@ -53,6 +53,15 @@ function toSlug(value: string) {
     .replace(/^-|-$/g, '');
 }
 
+function normalizeDate(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : value;
+}
+
 const getSessionizeSpeakerData = cache(async (): Promise<SessionizeSpeakerResponse> => {
   try {
     const response = await fetch(SESSIONIZE_SPEAKER_URL, {
@@ -69,12 +78,13 @@ const getSessionizeSpeakerData = cache(async (): Promise<SessionizeSpeakerRespon
   }
 });
 
-function getYearFromDate(date: string | undefined) {
-  if (!date) {
+function getYearFromDate(date: string | null | undefined) {
+  const normalizedDate = normalizeDate(date);
+  if (!normalizedDate) {
     return null;
   }
 
-  const year = new Date(date).getFullYear();
+  const year = new Date(normalizedDate).getFullYear();
   return Number.isFinite(year) ? year : null;
 }
 
@@ -97,14 +107,17 @@ function mapToSpeakerEvent(event: SessionizeEvent): SpeakerEvent {
   return {
     id: String(event.id ?? toSlug(name)),
     name,
-    startsAt: event.eventStartDate ?? null,
-    endsAt: event.eventEndDate ?? null,
+    startsAt: normalizeDate(event.eventStartDate),
+    endsAt: normalizeDate(event.eventEndDate),
     location: event.location ?? null,
     url: event.website ?? null
   };
 }
 
-export async function getSpeakerContent(): Promise<{ sessions: SpeakerSession[]; events: SpeakerEvent[] }> {
+export async function getSpeakerContent(): Promise<{
+  sessions: SpeakerSession[];
+  events: SpeakerEvent[];
+}> {
   const payload = await getSessionizeSpeakerData();
 
   return {
@@ -132,5 +145,9 @@ export async function getSpeakerSessionsByYear(year: number): Promise<SpeakerSes
 export async function getSpeakerSessionYears(): Promise<number[]> {
   const sessions = await getSpeakerSessions();
 
-  return [...new Set(sessions.map((session) => session.year).filter((year): year is number => year !== null))].sort((a, b) => b - a);
+  return [
+    ...new Set(
+      sessions.map((session) => session.year).filter((year): year is number => year !== null)
+    )
+  ].sort((a, b) => b - a);
 }

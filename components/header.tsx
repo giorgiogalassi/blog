@@ -59,6 +59,16 @@ export function Header() {
             ))}
           </ul>
         </nav>
+
+        <Link
+          href="https://calendly.com/ged-galassi/30min"
+          className="header-cta button-link"
+          target="_blank"
+          rel="noreferrer"
+          onClick={closeMenu}
+        >
+          Book a call
+        </Link>
       </div>
     </header>
   );

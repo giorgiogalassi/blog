@@ -21,8 +21,13 @@ export default async function ArticlesPage() {
         {articles.map((article) => (
           <article key={article.id} className="card">
             {article.imageUrl ? (
-              // Usando un normale <img> evitiamo vincoli su domini esterni in configurazione Next.
-              <img src={article.imageUrl} alt={article.title} className="card-image" loading="lazy" />
+              // Keep a plain <img> to avoid Next.js remote image domain configuration overhead.
+              <img
+                src={article.imageUrl}
+                alt={article.title}
+                className="card-image"
+                loading="lazy"
+              />
             ) : null}
 
             <h2>{article.title}</h2>

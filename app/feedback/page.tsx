@@ -20,20 +20,23 @@ function getCurrentYear() {
 export default async function FeedbackPage({ searchParams }: FeedbackPageProps) {
   const params = await searchParams;
   const availableYears = await getSpeakerSessionYears();
+  const fallbackYear = availableYears[0] ?? getCurrentYear();
 
-  const currentYear = getCurrentYear();
   const parsedYear = Number(params.year);
   const hasValidYear = Number.isFinite(parsedYear) && availableYears.includes(parsedYear);
-  const selectedYear = hasValidYear ? parsedYear : currentYear;
+  const selectedYear = hasValidYear ? parsedYear : fallbackYear;
 
   const speeches = await getSpeakerSessionsByYear(selectedYear);
+  const years = [...new Set([fallbackYear, ...availableYears])].sort((a, b) => b - a);
 
   return (
     <section className="page container">
       <h1>Talk feedback</h1>
-      <p className="lead">Thanks for attending. Pick the year and choose the talk you want to review.</p>
+      <p className="lead">
+        Thanks for attending. Pick the year and choose the talk you want to review.
+      </p>
 
-      <YearSelector selectedYear={selectedYear} years={[...new Set([currentYear, ...availableYears])].sort((a, b) => b - a)} />
+      <YearSelector selectedYear={selectedYear} years={years} />
 
       {speeches.length === 0 ? <p className="note">No talks found for the selected year.</p> : null}
 

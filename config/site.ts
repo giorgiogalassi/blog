@@ -7,8 +7,10 @@ export const siteConfig = {
   email: 'ged.galassi@gmail.com',
   nav: [
     { label: 'Home', href: '/' },
+    { label: 'Services', href: '/services' },
+    { label: 'Work', href: '/work' },
     { label: 'Articles', href: '/articles' },
-    { label: 'Sessions', href: '/sessions' },
+    { label: 'Speaking', href: '/speaking' },
     { label: 'Feedback', href: '/feedback' },
     { label: 'Contact', href: '/contact' }
   ],
