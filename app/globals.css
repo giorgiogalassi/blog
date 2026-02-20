@@ -213,7 +213,7 @@ h6 {
 }
 
 .home-hero {
-  padding: var(--space-12);
+  padding: var(--space-24) var(--space-12) var(--space-12);
   margin-bottom: var(--space-6);
 }
 
@@ -570,7 +570,7 @@ details.card[open] > :not(summary) {
 
 @media (max-width: 768px) {
   .home-hero {
-    padding: 1.5rem;
+    padding: var(--space-16) var(--space-6) var(--space-6);
   }
 
   .home-hero h1 {
@@ -632,28 +632,28 @@ details.card[open] > :not(summary) {
 .proof-bar {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
-  margin: 0 0 1.25rem;
+  gap: var(--space-4);
+  margin: 0 0 var(--space-6);
 }
 
 .proof-item {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: #fff;
-  padding: 1rem;
+  background: var(--color-surface-2);
+  padding: var(--space-6) var(--space-4);
 }
 
 .proof-value {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1.15;
 }
 
 .proof-label {
-  margin: 0.3rem 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--color-muted);
-  font-size: 0.92rem;
+  font-size: 0.875rem;
 }
 
 .services-hero {

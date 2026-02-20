@@ -2,7 +2,7 @@ const proofItems = [
   { value: '10+', label: 'Years Experience' },
   { value: '30+', label: 'Conference Talks' },
   { value: 'Angular', label: 'Architecture Specialist' },
-  { value: 'Remote', label: 'Product Team Partner' }
+  { value: 'Community', label: 'Lead' }
 ];
 
 export function ProofBar() {
